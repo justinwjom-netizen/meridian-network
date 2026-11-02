@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Positions · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="app" data-page="positions">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="page-head"><h1>Positions</h1><p class="lead">Open exposure and unrealized performance. <span class="demo-note">Demo prices — not live market data.</span></p></div>
+  <div class="metrics m4 mb"><div class="metric"><div class="k">Portfolio Value</div><div class="v">10,342.60</div><div class="sub">USDT</div></div><div class="metric"><div class="k">Unrealized PnL</div><div class="v pos">+128.40</div><div class="sub pos">+1.26%</div></div><div class="metric"><div class="k">Open Positions</div><div class="v">3</div><div class="sub">2 long · 1 short</div></div><div class="metric"><div class="k">Largest Exposure</div><div class="v">34%</div><div class="sub">HSK</div></div></div>
+  <div class="panel"><div class="panel-head"><h3>Open Positions</h3><div class="chips"><span class="chip">All</span><span class="chip">Long</span><span class="chip">Short</span></div></div>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Asset</th><th class="num">Qty</th><th class="num">Entry</th><th class="num">Mark</th><th class="num">Value</th><th class="num">Unreal. PnL</th><th class="num">Exposure</th><th>Risk</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){ var M=window.MERIDIAN;
+  var p=[["HSK","1,420.0","2.4810","2.5041","3,555.8","+32.80","34%","OK"],["WETH","1.25","2,410.0","2,388.0","2,985.0","-27.50","29%","Watch"],["USDT","3,801.8","1.0000","1.0000","3,801.8","0.00","37%","OK"]];
+  document.getElementById("rows").innerHTML=p.map(function(r){ var pos=r[5][0]!=="-"&&r[5]!=="0.00";
+    return "<tr><td>"+r[0]+"</td><td class='num'>"+r[1]+"</td><td class='num'>"+r[2]+"</td><td class='num'>"+r[3]+"</td><td class='num'>"+r[4]+"</td><td class='num "+(r[5]==="0.00"?"":(pos?"pos":"neg"))+"'>"+(pos?"+":"")+r[5].replace("+","")+"</td><td class='num t2'>"+r[6]+"</td><td>"+M.stBadge(r[7]==="OK"?"Settled":"Pending").replace("Settled",r[7]).replace("Pending",r[7])+"</td></tr>"; }).join("");
+})();
+</script>
+</body>
+</html>

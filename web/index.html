@@ -1,0 +1,558 @@
+<title>Meridian</title>
+<meta name="description" content="Agent-native finance on HSK Chain. Autonomous agents buy intelligence and settle payments on-chain — bounded by policy, proven by an auditor." />
+<style>
+  /* Layout: sticky nav over hash-routed views. Home opens on a full-viewport dot-matrix
+     hero (a human hand and an agent hand reaching toward each other). Inner pages are
+     editorial data boxes + animated charts in the same LED / off-white world. */
+  :root{
+    --bg:#f6f7f5; --panel:#fff; --ink:#111214; --dot:#0d0d0d;
+    --mute:#9a9c98; --sub:#6f726e; --link:#3a3c38; --logo:#8a8d88;
+    --line:#e6e7e2; --line2:#dcded8;
+    --pos:#12805c; --neg:#c23b2b; --accent:#5b54e6;
+    --rainbow:linear-gradient(90deg,#ffcf5a,#7dffa8,#5ad7ff,#9b7bff,#ff6fd8,#ffb36b);
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.5}
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,"Cascadia Code",monospace}
+
+  .wrap{width:min(1120px,100%);margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+
+  /* NAV */
+  .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(14px,2.2vw,32px);padding:16px 20px;font-size:13.5px;background:rgba(246,247,245,.72);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+  .nav.scrolled{border-bottom-color:var(--line);background:rgba(246,247,245,.88)}
+  .brand{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;letter-spacing:-.01em;text-decoration:none;margin-right:6px}
+  .nav a.link{color:var(--link);text-decoration:none;transition:color .2s;position:relative}
+  .nav a.link:hover{color:#000}.nav a.link.active{color:#000}
+  .nav a.link.active::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;border-radius:2px;background:var(--ink)}
+  .signin{background:var(--ink);color:#fff;padding:9px 20px;border-radius:999px;font-weight:500;text-decoration:none;margin-left:6px;transition:transform .25s}
+  .signin:hover{transform:translateY(-1px)}
+  .navtoggle{display:none;background:none;border:1px solid var(--line2);border-radius:999px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+
+  .glow{display:inline-block;position:relative}
+  .glow > a,.glow > button{position:relative;z-index:2;display:inline-block;background:var(--ink);color:#fff;font-size:13.5px;font-weight:500;padding:12px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;transition:transform .3s}
+  .glow::before{content:"";position:absolute;left:10%;right:10%;bottom:-6px;height:16px;border-radius:50%;z-index:1;background:var(--rainbow);filter:blur(9px);opacity:.85;transition:opacity .3s,filter .3s,bottom .3s}
+  .glow:hover::before{opacity:1;filter:blur(12px);bottom:-9px}
+  .glow:hover > a,.glow:hover > button{transform:translateY(-1px)}
+  .ghost{display:inline-block;padding:12px 22px;border-radius:999px;border:1px solid var(--line2);text-decoration:none;font-size:13.5px;font-weight:500;background:var(--panel);transition:border-color .2s,transform .2s;cursor:pointer}
+  .ghost:hover{border-color:var(--ink);transform:translateY(-1px)}
+
+  .view[hidden]{display:none!important}
+  section.sec{padding:clamp(52px,7vw,100px) 0}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+  .h2{font-weight:500;letter-spacing:-.03em;line-height:1.06;font-size:clamp(28px,4vw,50px);text-wrap:balance;margin-top:14px}
+  .lead{color:var(--sub);font-size:clamp(15px,1.3vw,18px);max-width:58ch;margin-top:16px}
+  .center{text-align:center}.center .lead{margin-left:auto;margin-right:auto}
+
+  .dothead{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .dothead::before{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--dot) 1px,transparent 1.4px);background-size:14px 14px;-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.14),transparent 62%);mask-image:linear-gradient(180deg,rgba(0,0,0,.14),transparent 62%);opacity:.5;pointer-events:none}
+  .dothead .wrap{position:relative;padding-top:clamp(50px,7vw,88px);padding-bottom:clamp(38px,5vw,60px)}
+
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;transition:transform .25s,border-color .25s,box-shadow .25s}
+  .card:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 18px 40px -26px rgba(0,0,0,.4)}
+  .card .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--line);margin-bottom:14px;font-size:18px}
+  .card h3{font-weight:600;font-size:17px;letter-spacing:-.01em}
+  .card p{color:var(--sub);font-size:14px;margin-top:8px}
+  .khash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--mute)}
+
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;text-align:center}
+  .stat .n{font-weight:600;font-size:clamp(26px,3.4vw,38px);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat .l{color:var(--sub);font-size:13px;margin-top:4px}
+  .pos{color:var(--pos)}.neg{color:var(--neg)}
+
+  .tier{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column}
+  .tier.feat{border-color:var(--ink);box-shadow:0 24px 60px -34px rgba(0,0,0,.5)}
+  .tier .price{font-weight:600;font-size:38px;letter-spacing:-.02em;margin:10px 0}
+  .tier ul{list-style:none;margin:14px 0 22px;display:flex;flex-direction:column;gap:10px}
+  .tier li{font-size:14px;color:var(--sub);display:flex;gap:9px;align-items:flex-start}
+  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--ink);color:#fff;padding:3px 9px;border-radius:999px}
+
+  .acc{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+  .acc+.acc{margin-top:12px}
+  .acc button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 20px;background:none;border:none;font:inherit;font-size:15px;font-weight:500;text-align:left;cursor:pointer}
+  .acc .plus{flex:0 0 auto;width:18px;height:18px;position:relative;transition:transform .3s}
+  .acc.open .plus{transform:rotate(45deg)}
+  .acc .plus::before,.acc .plus::after{content:"";position:absolute;background:var(--ink);border-radius:2px}
+  .acc .plus::before{top:8px;left:0;right:0;height:2px}.acc .plus::after{left:8px;top:0;bottom:0;width:2px}
+  .acc .panel{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .acc .panel p{padding:0 20px 18px;color:var(--sub);font-size:14px}
+
+  .step{display:flex;gap:16px;align-items:flex-start}
+  .step .num{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+  .step h3{font-size:16px;font-weight:600}.step p{color:var(--sub);font-size:14px;margin-top:4px}
+
+  .ctaband{background:var(--ink);border-radius:26px;padding:clamp(34px,5vw,60px);text-align:center;position:relative;overflow:hidden}
+  .ctaband::after{content:"";position:absolute;left:50%;bottom:-40px;width:60%;height:70px;transform:translateX(-50%);background:var(--rainbow);filter:blur(34px);opacity:.6}
+  .ctaband h2{color:#fff;font-weight:500;letter-spacing:-.03em;font-size:clamp(26px,3.6vw,42px);position:relative}
+  .ctaband p{color:#cfcfcf;margin:14px auto 24px;max-width:50ch;position:relative}
+  .ctaband .glow > a{background:#fff;color:#111}
+
+  /* charts */
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+  .chart svg{width:100%;display:block;overflow:visible}
+  .chart .line{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+  .chart .area{fill:url(#eqfill);opacity:0;transition:opacity 1.2s ease .3s}
+  .chart .grid line{stroke:var(--line);stroke-width:1}
+  .chart.in .area{opacity:1}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:150px}
+  .bars .bar{flex:1;border-radius:4px 4px 0 0;height:0;transition:height .9s cubic-bezier(.22,1,.36,1)}
+  .chart.in .bars .bar{height:var(--h)}
+
+  .ledger{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}
+  .ledger .row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--line);font-size:13px}
+  .ledger .row:first-child{border-top:none}
+  .pill{font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px}
+  .pill.buy{color:var(--pos);background:rgba(18,128,92,.1)}.pill.sell{color:var(--neg);background:rgba(194,59,43,.1)}
+
+  /* agent network (SVG, CSS-animated flows) */
+  .net{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px}
+  .net svg{width:100%;height:auto;display:block}
+  .net .lk{stroke:var(--line2);stroke-width:1.5;fill:none}
+  .net .flow{stroke:var(--ink);stroke-width:1.6;fill:none;stroke-dasharray:4 10;animation:dash 1.4s linear infinite;opacity:.55}
+  .net .node{fill:var(--panel);stroke:var(--ink);stroke-width:1.6}
+  .net .hub{fill:var(--ink)}
+  .net text{font-family:ui-monospace,Menlo,monospace;font-size:9px;fill:var(--sub)}
+  .net .hubt{fill:#fff;font-weight:700}
+  @keyframes dash{to{stroke-dashoffset:-28}}
+
+  footer.site{border-top:1px solid var(--line);margin-top:10px}
+  footer.site .wrap{padding-top:48px;padding-bottom:36px;display:grid;gap:30px;grid-template-columns:1.6fr 1fr 1fr 1fr}
+  footer .col h4{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+  footer .col a{display:block;color:var(--sub);text-decoration:none;font-size:14px;padding:4px 0}
+  footer .col a:hover{color:#000}
+  footer .legal{border-top:1px solid var(--line);padding:16px 0;color:var(--mute);font-size:12px;text-align:center}
+  .risk{border:1px solid var(--line2);background:var(--panel);border-radius:12px;padding:12px 16px;color:var(--sub);font-size:12px;display:flex;gap:8px;align-items:flex-start}
+
+  /* HERO */
+  .hero{position:relative;min-height:calc(100vh - 60px);overflow:hidden}
+  #dots{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hero .copy{position:absolute;left:50%;top:21%;transform:translateX(-50%);text-align:center;width:min(92vw,760px);z-index:3}
+  .hero h1{font-weight:500;letter-spacing:-.035em;line-height:1.04;font-size:clamp(36px,5vw,66px);text-wrap:balance}
+  .hero h1 .grey{display:block;color:var(--mute)}.hero h1 .ink{display:block;color:var(--ink)}
+  .hero .copy p{margin:20px auto 0;max-width:420px;color:var(--sub);font-size:clamp(13px,1.1vw,15.5px);line-height:1.45}
+  .hero .cta{margin-top:clamp(28px,3.2vw,44px);display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .hero .logos{position:absolute;bottom:clamp(22px,5vh,54px);left:0;right:0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(18px,3.4vw,52px);padding:0 16px;z-index:3}
+  .hero .logo{display:inline-flex;align-items:center;gap:7px;color:var(--logo);font-size:clamp(12px,1vw,15px);font-weight:500;letter-spacing:-.01em}
+  .hero .logo b{font-weight:600;color:var(--sub)}
+
+  @media (max-width:860px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}footer.site .wrap{grid-template-columns:1fr 1fr}}
+  @media (max-width:760px){
+    .nav a.link{display:none}.nav.open a.link{display:block;width:100%;text-align:center;padding:6px 0}
+    .nav{justify-content:space-between}.navtoggle{display:inline-block;order:3}.brand{order:1}.signin{order:2}.nav.open{flex-direction:column}
+    .hero .copy{top:17%}
+  }
+  @media (max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}footer.site .wrap{grid-template-columns:1fr 1fr}}
+  @media (prefers-reduced-motion:reduce){
+    .card,.glow>a,.glow>button,.ghost,.signin,.acc .plus,.acc .panel,.bars .bar,.chart .area{transition:none}
+    .net .flow{animation:none}
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+
+<header class="nav" id="nav">
+  <a class="brand" href="#home" aria-label="Meridian home">
+    <svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor" aria-hidden="true"><path d="M2 0h4v18H2zM7 9c3-1 5-4 6-9h3c-1 5-3 8-6 9 3 1 5 4 6 9h-3c-1-5-3-8-6-9z"/></svg>
+    Meridian
+  </a>
+  <a class="link" href="#platform">Platform</a>
+  <a class="link" href="#marketplace">Marketplace</a>
+  <a class="link" href="#technology">Technology</a>
+  <a class="link" href="#performance">Performance</a>
+  <a class="link" href="#company">Company</a>
+  <a class="signin" href="/app">Launch app</a>
+  <button class="navtoggle" id="navtoggle" aria-expanded="false" aria-label="Toggle menu">Menu</button>
+</header>
+
+<main>
+  <!-- ============ HOME ============ -->
+  <section class="view" id="home">
+    <div class="hero">
+      <canvas id="dots" aria-hidden="true"></canvas>
+      <div class="copy">
+        <h1><span class="grey">Your agents can think.</span><span class="ink">Now they transact.</span></h1>
+        <p>Meridian is agent-native finance on HSK Chain. Autonomous agents buy intelligence and settle payments on-chain &mdash; every move bounded by policy, proven by an independent auditor.</p>
+        <div class="cta"><span class="glow"><a href="/app">Launch the terminal</a></span><a class="ghost" href="#marketplace">Explore agents</a></div>
+      </div>
+      <div class="logos" aria-label="Ecosystem">
+        <span class="logo"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l8 4.5v9L10 19l-8-4.5v-9z"/></svg><b>HSK Chain</b></span>
+        <span class="logo"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 110 18 9 9 0 010-18zm0 4a5 5 0 100 10 5 5 0 000-10z"/></svg><b>HSP</b></span>
+        <span class="logo"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M1 15L7 5l3 5 3-6 6 11z"/></svg><b>MCP</b></span>
+        <span class="logo"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l9 4-9 4-9-4zm-9 8l9 4 9-4v3l-9 4-9-4z"/></svg><b>HSKSwap</b></span>
+        <span class="logo"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M4 10l4 4 8-9"/></svg><b>Veritas</b></span>
+        <span class="logo"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M3 15c0-7 5-12 14-12-1 9-6 14-13 13z"/></svg><b>USDT</b></span>
+      </div>
+    </div>
+
+    <section class="sec"><div class="wrap center">
+      <span class="eyebrow">The closed loop</span>
+      <h2 class="h2">One continuous system, not isolated products.</h2>
+      <p class="lead">An agent that trades must pay the agents that make it smart. Meridian makes that economy possible &mdash; intelligence, execution and settlement in one loop.</p>
+      <div class="grid g3" style="margin-top:38px;text-align:left">
+        <div class="card"><div class="ic">◍</div><h3>Agents buy intelligence</h3><p>HSP payment mandates let an agent pay per service call, bounded by a daily budget and an approved-payee list enforced on-chain.</p></div>
+        <div class="card"><div class="ic">▣</div><h3>Bounded authority</h3><p>The Strategist runs through a bounded session key inside PolicyVault &mdash; per-trade caps, loss limits and allowlists it cannot exceed.</p></div>
+        <div class="card"><div class="ic">✓</div><h3>Verifiable performance</h3><p>An independent Auditor replays settled trades and signs epoch PnL attestations. Evidence over marketing.</p></div>
+      </div>
+    </div></section>
+
+    <section class="sec" style="padding-top:0"><div class="wrap">
+      <div class="grid g4">
+        <div class="stat"><div class="n" data-count="0.9" data-dec="1" data-suffix="s">0</div><div class="l">Avg on-chain settle</div></div>
+        <div class="stat"><div class="n" data-count="5">0</div><div class="l">Coordinated agents</div></div>
+        <div class="stat"><div class="n" data-count="128">0</div><div class="l">Settled · 24h</div></div>
+        <div class="stat"><div class="n" data-count="4">0</div><div class="l">Policy caps enforced</div></div>
+      </div>
+      <div class="risk" style="margin-top:18px">⚠ All figures on this site are illustrative demo values. Trading involves substantial risk of loss; past performance is not indicative of future results.</div>
+    </div></section>
+
+    <section class="sec" style="padding-top:0"><div class="wrap"><div class="ctaband">
+      <h2>Build an economy where agents work together.</h2>
+      <p>Launch the Meridian terminal on HSK Chain testnet. Connect a wallet &mdash; it auto-switches to the right network before any on-chain write.</p>
+      <div class="glow"><a href="/app">Launch Meridian</a></div>
+    </div></div></section>
+  </section>
+
+  <!-- ============ PLATFORM ============ -->
+  <section class="view" id="platform" hidden>
+    <div class="dothead"><div class="wrap center">
+      <span class="eyebrow">Platform</span>
+      <h2 class="h2">Five agents. One coordinated system.</h2>
+      <p class="lead">You own and instruct the Strategist. It purchases intelligence, risk and execution from independent specialist agents, and pays them on-chain.</p>
+    </div></div>
+    <section class="sec"><div class="wrap">
+      <div class="grid g2" style="align-items:center">
+        <div class="net" id="net"></div>
+        <div>
+          <span class="eyebrow">Coordination</span>
+          <h2 class="h2" style="font-size:clamp(24px,3vw,36px)">The Strategist at the centre.</h2>
+          <p class="lead">Market state and your policy go in; a proposed trade and the intelligence it needs come out. Packets on the left are live agent-to-agent calls settling across the network.</p>
+        </div>
+      </div>
+      <div class="grid g3" style="margin-top:34px">
+        <div class="card"><div class="ic">◆</div><h3>Strategist</h3><p>Your user-owned agent. Coordinates strategy via a bounded session key &mdash; never your keys.</p><div class="khash">user-owned</div></div>
+        <div class="card"><div class="ic">◈</div><h3>Signal</h3><p>Entry, target and stop levels from market structure, order-flow and sentiment.</p><div class="khash">per call</div></div>
+        <div class="card"><div class="ic">◇</div><h3>Risk</h3><p>Approve, resize or veto. The last word before a trade is sized.</p><div class="khash">per call</div></div>
+        <div class="card"><div class="ic">▷</div><h3>Execution</h3><p>Routes the approved trade through HSKSwap with slippage caps re-checked on-chain.</p><div class="khash">per call</div></div>
+        <div class="card"><div class="ic">✓</div><h3>Auditor (Veritas)</h3><p>Replays settled trades and signs epoch PnL attestations.</p><div class="khash">per epoch</div></div>
+        <div class="card"><div class="ic">▣</div><h3>PolicyVault</h3><p>On-chain guardrails: per-trade caps, daily loss limits, budgets and allowlists.</p><div class="khash">owner-pausable</div></div>
+      </div>
+    </div></section>
+    <section class="sec" style="padding-top:0"><div class="wrap">
+      <div class="grid g2" style="align-items:center">
+        <div><span class="eyebrow">The cycle</span><h2 class="h2" style="font-size:clamp(24px,3vw,38px)">Intent to settlement in seven moves.</h2></div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="step"><div class="num">1</div><div><h3>Policy</h3><p>You set limits in plain English; schema-validated before anything is stored.</p></div></div>
+          <div class="step"><div class="num">2</div><div><h3>Strategist proposes</h3><p>Market state + policy → a proposed trade and the intelligence it needs.</p></div></div>
+          <div class="step"><div class="num">3</div><div><h3>Signal + Risk</h3><p>Specialist agents are purchased; results released only after payment settles.</p></div></div>
+          <div class="step"><div class="num">4</div><div><h3>HSP mandate</h3><p>A signed mandate with unique nonce + expiry authorises payment within budget.</p></div></div>
+          <div class="step"><div class="num">5</div><div><h3>Settle + execute</h3><p>Payment settles on HSK Chain; the approved swap executes on HSKSwap.</p></div></div>
+          <div class="step"><div class="num">6</div><div><h3>Audit</h3><p>Veritas verifies and signs the epoch PnL attestation.</p></div></div>
+        </div>
+      </div>
+    </div></section>
+  </section>
+
+  <!-- ============ MARKETPLACE ============ -->
+  <section class="view" id="marketplace" hidden>
+    <div class="dothead"><div class="wrap center">
+      <span class="eyebrow">Marketplace</span>
+      <h2 class="h2">Intelligence, on demand.</h2>
+      <p class="lead">Discover specialist agents for signals, risk, execution and audit &mdash; each priced per call and paid through HSP mandates.</p>
+    </div></div>
+    <section class="sec"><div class="wrap">
+      <div class="grid g3" id="agent-grid"></div>
+    </div></section>
+    <section class="sec" style="padding-top:0"><div class="wrap center">
+      <span class="eyebrow">Access</span>
+      <h2 class="h2">Plans for every desk.</h2>
+      <div class="grid g3" style="margin-top:34px;text-align:left">
+        <div class="tier"><h3>Explorer</h3><div class="price">Free</div><p style="color:var(--sub);font-size:14px">Read-only terminal on testnet.</p>
+          <ul><li>✓ Live demo terminal</li><li>✓ Agent marketplace</li><li>✓ Policy simulator</li><li>✓ Testnet wallet connect</li></ul>
+          <div class="glow" style="margin-top:auto"><a href="/app">Launch app</a></div></div>
+        <div class="tier feat"><span class="tag">Most used</span><h3 style="margin-top:10px">Operator</h3><div class="price">$0<span style="font-size:14px;color:var(--sub)"> + gas</span></div><p style="color:var(--sub);font-size:14px">Deploy your own vault and Strategist.</p>
+          <ul><li>✓ Deploy PolicyVault</li><li>✓ User-owned Strategist</li><li>✓ HSP mandates</li><li>✓ Full agent marketplace</li><li>✓ Signed attestations</li></ul>
+          <div class="glow" style="margin-top:auto"><a href="/app">Deploy vault</a></div></div>
+        <div class="tier"><h3>Institution</h3><div class="price">Custom</div><p style="color:var(--sub);font-size:14px">Multi-desk, MCP access and SLAs.</p>
+          <ul><li>✓ MCP server access</li><li>✓ Custom risk profiles</li><li>✓ Dedicated support</li><li>✓ White-label terminal</li></ul>
+          <div class="ghost" style="margin-top:auto;text-align:center">Talk to us</div></div>
+      </div>
+    </div></section>
+  </section>
+
+  <!-- ============ TECHNOLOGY ============ -->
+  <section class="view" id="technology" hidden>
+    <div class="dothead"><div class="wrap center">
+      <span class="eyebrow">Technology</span>
+      <h2 class="h2">Autonomy without unlimited authority.</h2>
+      <p class="lead">The model never constructs arbitrary transactions. Proposed actions are validated against schema, then a deterministic execution path, then contract-level policy checks.</p>
+    </div></div>
+    <section class="sec"><div class="wrap">
+      <span class="eyebrow">Guardrails</span>
+      <h2 class="h2" style="font-size:clamp(24px,3vw,36px);margin-bottom:26px">Four enforceable boundaries.</h2>
+      <div class="grid g4">
+        <div class="card"><div class="ic">◱</div><h3>Per-trade</h3><p>Max notional on any single swap.</p><div class="khash">500 USDT</div></div>
+        <div class="card"><div class="ic">◲</div><h3>Daily loss</h3><p>Cumulative realized-loss ceiling.</p><div class="khash">resets 24h</div></div>
+        <div class="card"><div class="ic">◳</div><h3>Agent budget</h3><p>Total service fees payable per 24h.</p><div class="khash">3.4 / 20</div></div>
+        <div class="card"><div class="ic">◴</div><h3>Allowlist</h3><p>Only vetted payees, pools and tokens.</p><div class="khash">on-chain</div></div>
+      </div>
+    </div></section>
+    <section class="sec" style="padding-top:0"><div class="wrap">
+      <div class="grid g2">
+        <div class="card"><div class="row" style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:14px">meridian-pay-mcp</h3><span class="khash">MCP</span></div><p>Payment conditions, mandate creation, settlement verification, payment history.</p></div>
+        <div class="card"><div class="row" style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:14px">meridian-trade-mcp</h3><span class="khash">MCP</span></div><p>Policy config, quotes, trade proposals, positions, PnL, agent discovery.</p></div>
+      </div>
+      <div class="card mono" style="margin-top:18px;font-size:12.5px;line-height:1.7;color:var(--sub);overflow-x:auto">
+        <div style="color:var(--mute)">// build &amp; settle a mandate inside policy limits</div>
+        <div><span class="pos">const</span> conditions = <span class="pos">await</span> pay.create_payment_conditions({ payee: signalAgent, token: <span style="color:var(--accent)">"USDT"</span>, amount: <span style="color:var(--accent)">"50000"</span> });</div>
+        <div><span class="pos">const</span> mandate = <span class="pos">await</span> pay.build_mandate(conditions);</div>
+        <div><span class="pos">const</span> receipt = <span class="pos">await</span> pay.submit_mandate(mandate);</div>
+        <div><span class="pos">await</span> pay.verify_settlement(receipt.orderId);</div>
+      </div>
+    </div></section>
+  </section>
+
+  <!-- ============ PERFORMANCE ============ -->
+  <section class="view" id="performance" hidden>
+    <div class="dothead"><div class="wrap center">
+      <span class="eyebrow">Performance verification</span>
+      <h2 class="h2">Evidence over marketing.</h2>
+      <p class="lead">Auditor attestations record what happened &mdash; they are not a promise of future profit. Everything below is illustrative demo data.</p>
+    </div></div>
+    <section class="sec"><div class="wrap">
+      <div class="grid g4" style="margin-bottom:20px">
+        <div class="stat"><div class="n pos">+6.42%</div><div class="l">Return · 30D (illustrative)</div></div>
+        <div class="stat"><div class="n neg">-2.10%</div><div class="l">Max drawdown · 30D</div></div>
+        <div class="stat"><div class="n" style="font-size:22px">SIGNED</div><div class="l">Attested · epoch 42</div></div>
+        <div class="stat"><div class="n" style="font-size:22px">ABOVE</div><div class="l">High-water mark</div></div>
+      </div>
+      <div class="chart" id="eqchart" data-chart><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:14px">Equity · 30 days</h3><span class="khash">illustrative</span></div></div>
+      <div class="grid g2" style="margin-top:18px">
+        <div class="chart" id="barchart" data-chart><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:14px">Monthly returns</h3><span class="khash">% · demo</span></div><div class="bars" id="bars"></div></div>
+        <div>
+          <h3 style="font-size:14px;margin-bottom:10px">Recent settlements <span class="khash">demo · live feed</span></h3>
+          <div class="ledger" id="ledger"></div>
+        </div>
+      </div>
+      <div class="risk" style="margin-top:18px">⚠ Illustrative demo values. Trading involves substantial risk of loss. Past performance is not indicative of future results. Meridian never guarantees returns.</div>
+    </div></section>
+  </section>
+
+  <!-- ============ COMPANY ============ -->
+  <section class="view" id="company" hidden>
+    <div class="dothead"><div class="wrap center">
+      <span class="eyebrow">Company</span>
+      <h2 class="h2">We make agents safe to transact.</h2>
+      <p class="lead">Meridian started from a simple gap: agents can think, but they can&rsquo;t safely pay for intelligence or act with bounded authority. We built the rails that let them.</p>
+    </div></div>
+    <section class="sec"><div class="wrap">
+      <div class="grid g3">
+        <div class="card"><h3>Policy over trust</h3><p>Authority is bounded on-chain, not promised. A compromised model still cannot exceed your caps.</p></div>
+        <div class="card"><h3>Evidence over claims</h3><p>Performance is attested by an independent auditor, not screenshotted.</p></div>
+        <div class="card"><h3>Open by protocol</h3><p>Two native MCP servers mean any agent framework can plug in.</p></div>
+      </div>
+    </div></section>
+    <section class="sec" style="padding-top:0"><div class="wrap">
+      <span class="eyebrow">Roadmap</span>
+      <h2 class="h2" style="font-size:clamp(24px,3vw,36px);margin-bottom:24px">Where we&rsquo;re headed.</h2>
+      <div class="grid g4">
+        <div class="card"><div class="tag" style="background:var(--pos)">Shipped</div><h3 style="margin-top:12px">Testnet live</h3><p>PolicyVault, Strategist and marketplace on HSK Chain testnet.</p></div>
+        <div class="card"><div class="tag" style="background:var(--pos)">Shipped</div><h3 style="margin-top:12px">HSP mandates</h3><p>Agent-to-agent payments with nonce + expiry.</p></div>
+        <div class="card"><div class="tag">Now</div><h3 style="margin-top:12px">Auditor epochs</h3><p>Signed PnL attestations above the high-water mark.</p></div>
+        <div class="card"><div class="tag" style="background:var(--panel);color:var(--ink);border:1px solid var(--line2)">Next</div><h3 style="margin-top:12px">Mainnet</h3><p>Production deployment and institutional MCP access.</p></div>
+      </div>
+    </div></section>
+    <section class="sec" style="padding-top:0"><div class="wrap">
+      <div class="grid g2" style="align-items:start">
+        <div><span class="eyebrow">Contact</span><h2 class="h2" style="font-size:clamp(24px,3vw,36px)">Launch or partner with us.</h2><p class="lead">Tell us about your desk or agent framework. This form is a demo &mdash; nothing is sent.</p></div>
+        <div class="card">
+          <form id="joinform" style="display:flex;flex-direction:column;gap:12px" novalidate>
+            <input id="jf-name" placeholder="Your name" required style="padding:12px 14px;border:1px solid var(--line2);border-radius:12px;font:inherit;background:var(--bg)">
+            <input id="jf-email" type="email" placeholder="Email" required style="padding:12px 14px;border:1px solid var(--line2);border-radius:12px;font:inherit;background:var(--bg)">
+            <input id="jf-org" placeholder="Desk / framework" style="padding:12px 14px;border:1px solid var(--line2);border-radius:12px;font:inherit;background:var(--bg)">
+            <div class="glow"><button type="submit">Request access</button></div>
+            <span id="jf-msg" role="status" style="font-size:13px;color:var(--sub)"></span>
+          </form>
+        </div>
+      </div>
+    </div></section>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="col">
+      <a class="brand" href="#home" style="margin-bottom:10px"><svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor"><path d="M2 0h4v18H2zM7 9c3-1 5-4 6-9h3c-1 5-3 8-6 9 3 1 5 4 6 9h-3c-1-5-3-8-6-9z"/></svg> Meridian</a>
+      <p style="color:var(--sub);font-size:14px;max-width:36ch">Agent-native finance on HSK Chain. Policy-bound execution, HSP agent payments, auditor-signed performance.</p>
+    </div>
+    <div class="col"><h4>Product</h4><a href="#platform">Platform</a><a href="#marketplace">Marketplace</a><a href="#technology">Technology</a><a href="#performance">Performance</a></div>
+    <div class="col"><h4>Developers</h4><a href="#technology">MCP servers</a><a href="#technology">Security model</a><a href="#performance">Attestations</a></div>
+    <div class="col"><h4>Company</h4><a href="#company">About</a><a href="#company">Roadmap</a><a href="#company">Contact</a></div>
+  </div>
+  <div class="legal">© <span id="yr"></span> Meridian · demo concept on HSK Chain testnet. Not financial advice. All figures are illustrative.</div>
+</footer>
+
+<script>
+/* ========================= 1) DOT-MATRIX HERO ========================= */
+(function(){
+  "use strict";
+  var SHEET="https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20261030_025250_100df7b8-31fd-4614-aa4a-c1b7d5b6b273.png&w=1600&q=85";
+  var SRC={LA:[0,.06,.47,.40],RA:[.53,.06,.47,.40],LB:[0,.55,.47,.40],RB:[.53,.55,.47,.40]};
+  var LOOP=20,LEVELS=[0,.26,.52,.78,1],SHEET_ASPECT=(.40*1520)/(.47*2688);
+  var canvas=document.getElementById("dots"),ctx=canvas.getContext("2d");
+  var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var fA=document.createElement("canvas"),fcA=fA.getContext("2d",{willReadFrequently:true});
+  var fB=document.createElement("canvas"),fcB=fB.getContext("2d",{willReadFrequently:true});
+  var tiles={},W=0,H=0,DPR=1,step=7,rowStep=14,cols=0,rows=0,R=3,portrait=false,seeds=null,ready=false;
+  function hash(a,b){var s=Math.sin(a*127.1+b*311.7)*43758.5453;return s-Math.floor(s);}
+  function clamp(x,a,b){return x<a?a:(x>b?b:x);}
+  function smooth(a,b,x){var t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);}
+  function mixAt(t,on,off,dur){return smooth(on,on+dur,t)*(1-smooth(off,off+dur,t));}
+  function tileFromImage(img,r){var sx=img.width*r[0],sy=img.height*r[1],sw=img.width*r[2],sh=img.height*r[3];var tw=420,th=Math.round(420*(sh/sw));var c=document.createElement("canvas");c.width=tw;c.height=th;var cc=c.getContext("2d");cc.imageSmoothingEnabled=true;cc.imageSmoothingQuality="high";cc.drawImage(img,sx,sy,sw,sh,0,0,tw,th);return c;}
+  function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
+  function synthTile(left,open){var tw=420,th=Math.round(420*SHEET_ASPECT);var c=document.createElement("canvas");c.width=tw;c.height=th;var g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,tw,th);g.save();if(!left){g.translate(tw,0);g.scale(-1,1);}g.fillStyle="#2b2b2b";rr(g,-40,th*.34,tw*.52,th*.30,60);g.fill();g.beginPath();g.ellipse(tw*.56,th*.5,tw*.16,th*.26,0,0,Math.PI*2);g.fill();var bx=tw*.66,by=th*.5,k;for(k=0;k<4;k++){var ang=open?(-0.5+k*.33):(-0.12+k*.08),len=open?tw*.24:tw*.14;g.save();g.translate(bx,by+(k-1.5)*th*.12);g.rotate(ang);rr(g,0,-th*.045,len,th*.09,20);g.fill();g.restore();}g.save();g.translate(tw*.5,th*.68);g.rotate(open?.9:.6);rr(g,0,-th*.05,tw*.18,th*.10,20);g.fill();g.restore();g.restore();return c;}
+  function fallback(){tiles.LA=synthTile(true,false);tiles.RA=synthTile(false,false);tiles.LB=synthTile(true,true);tiles.RB=synthTile(false,true);}
+  function setup(){W=canvas.clientWidth||window.innerWidth;H=canvas.clientHeight||window.innerHeight;portrait=H>W;DPR=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);step=Math.max(5,W/205);rowStep=step*2.05;cols=Math.ceil(W/step);rows=Math.ceil(H/rowStep);R=step*.46;fA.width=cols;fA.height=rows;fB.width=cols;fB.height=rows;seeds=new Float32Array(cols*rows);for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)seeds[j*cols+i]=.55*hash(i,j)+.45*hash(j*3.1,7.7);}
+  function drawHand(fc,tile,left,t){if(!tile)return;var a=2*Math.PI*t/LOOP,ph=left?0:Math.PI;var hw=W*(portrait?.66:.53),hh=hw*SHEET_ASPECT,cyH=H*(portrait?.66:.54);var reach=(.035*Math.sin(a+ph)+.012*Math.sin(2*a+1.3+ph))*W;var sc=1+.07*Math.sin(a+.9+ph),rot=(left?1:-1)*.045*Math.sin(a+2.1+ph);var x=left?(reach-W*.045):(W-hw+W*.045-reach),pivot=left?0:W;fc.save();fc.scale(cols/W,rows/H);fc.translate(pivot,cyH);fc.rotate(rot);fc.scale(sc,sc);fc.translate(-pivot,-cyH);fc.drawImage(tile,x,cyH-hh/2,hw,hh);fc.restore();}
+  function render(tIn){if(!cols||!ready)return;var t=((tIn%LOOP)+LOOP)%LOOP;fcA.setTransform(1,0,0,1,0,0);fcA.fillStyle="#fff";fcA.fillRect(0,0,cols,rows);fcB.setTransform(1,0,0,1,0,0);fcB.fillStyle="#fff";fcB.fillRect(0,0,cols,rows);drawHand(fcA,tiles.LA,true,t);drawHand(fcA,tiles.RA,false,t);drawHand(fcB,tiles.LB,true,t);drawHand(fcB,tiles.RB,false,t);var A=fcA.getImageData(0,0,cols,rows).data,B=fcB.getImageData(0,0,cols,rows).data;ctx.clearRect(0,0,W,H);ctx.fillStyle="#0d0d0d";var tick=Math.floor(t*7),mL=mixAt(t,6.2,14.6,1.6),mR=mixAt(t,2.4,10.4,1.6);var QZx=portrait?.44:.2,QZcy=portrait?.33:.385,QZh=.085,half=cols/2;for(var j=0;j<rows;j++){var shift=0;if(hash(j,tick)>.965)shift=Math.round((hash(tick,j)-.5)*8);var py=(j+.5)*rowStep,eyB=(py/H-QZcy)/QZh;for(var i=0;i<cols;i++){var seed=seeds[j*cols+i],m=(i<half)?mL:mR,si=clamp(i-shift,0,cols-1),idx=(j*cols+si)*4;var red=(seed<m?B:A)[idx],lum=red/255,v=clamp((1-lum-.16)/.42,0,1);if(v<=0)continue;if(m>.001&&m<.999){var d=Math.abs(seed-m);if(d<.12){v*=d/.12;if(hash(i+tick,j)<=.4)v*=.3;}}v*=.86+.14*Math.sin(t*3.2+seed*40);var cx=Math.abs((i+.5)/cols-.5);v*=smooth(.035,.11,cx);v*=smooth(.85,1.25,Math.hypot(cx/QZx,eyB));if(v<=0)continue;var level=0,k;for(k=0;k<LEVELS.length;k++){if(v>=LEVELS[k]-.13)level=LEVELS[k];}if(level<=0)continue;var r=(level===.26)?R*.38:R*level;ctx.beginPath();ctx.arc((i+.5)*step,py,r,0,6.2831853);ctx.fill();}}}
+  window.__render=render;
+  var t0=performance.now(),raf=0,running=false;
+  function loop(now){render((now-t0)/1000);raf=requestAnimationFrame(loop);}
+  window.__heroStart=function(){if(!ready)return;setup();if(reduce){render(3.0);return;}if(!running){running=true;t0=performance.now();raf=requestAnimationFrame(loop);}};
+  window.__heroStop=function(){running=false;cancelAnimationFrame(raf);};
+  var ro;window.addEventListener("resize",function(){clearTimeout(ro);ro=setTimeout(function(){if(document.getElementById("home").hidden)return;setup();if(reduce)render(3.0);},140);});
+  var img=new Image();img.crossOrigin="anonymous";
+  img.onload=function(){try{tiles.LA=tileFromImage(img,SRC.LA);tiles.RA=tileFromImage(img,SRC.RA);tiles.LB=tileFromImage(img,SRC.LB);tiles.RB=tileFromImage(img,SRC.RB);var tt=document.createElement("canvas");tt.width=tt.height=2;var tc=tt.getContext("2d");tc.drawImage(tiles.LA,0,0,2,2);tc.getImageData(0,0,2,2);}catch(e){fallback();}ready=true;if(!document.getElementById("home").hidden)window.__heroStart();};
+  img.onerror=function(){fallback();ready=true;if(!document.getElementById("home").hidden)window.__heroStart();};
+  img.src=SHEET;
+  setTimeout(function(){if(!ready){fallback();ready=true;if(!document.getElementById("home").hidden)window.__heroStart();}},6000);
+})();
+
+/* ========================= 2) ROUTER + DATA + CHARTS ========================= */
+(function(){
+  "use strict";
+  var VIEWS=["home","platform","marketplace","technology","performance","company"];
+  var nav=document.getElementById("nav"),reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var ledgerTimer=null;
+
+  function show(id){
+    if(VIEWS.indexOf(id)<0)id="home";
+    VIEWS.forEach(function(v){var el=document.getElementById(v);if(el)el.hidden=(v!==id);});
+    document.querySelectorAll(".nav a.link").forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+id);});
+    nav.classList.remove("open");document.getElementById("navtoggle").setAttribute("aria-expanded","false");
+    window.scrollTo(0,0);
+    if(id==="home"){if(window.__heroStart)window.__heroStart();runCounters();}else{if(window.__heroStop)window.__heroStop();}
+    if(id==="performance"){animateCharts();startLedger();}else{stopLedger();}
+  }
+  function current(){return (location.hash||"#home").slice(1);}
+  window.addEventListener("hashchange",function(){show(current());});
+  var onScroll=function(){nav.classList.toggle("scrolled",window.scrollY>6);};window.addEventListener("scroll",onScroll,{passive:true});onScroll();
+  document.getElementById("navtoggle").addEventListener("click",function(){var open=nav.classList.toggle("open");this.setAttribute("aria-expanded",open?"true":"false");});
+  document.getElementById("yr").textContent=new Date().getFullYear();
+
+  var countersDone=false;
+  function runCounters(){if(countersDone)return;countersDone=true;
+    document.querySelectorAll("[data-count]").forEach(function(el){
+      var target=+el.getAttribute("data-count"),suffix=el.getAttribute("data-suffix")||"",dec=+(el.getAttribute("data-dec")||0);
+      var fmt=function(n){return (n>=1000?Math.round(n).toLocaleString("en"):n.toFixed(dec))+suffix;};
+      if(reduce){el.textContent=fmt(target);return;}
+      var start=performance.now(),dur=1400;
+      (function tick(now){var t=Math.min((now-start)/dur,1),e=1-Math.pow(1-t,3);el.textContent=fmt(target*e);if(t<1)requestAnimationFrame(tick);})(start);
+    });
+  }
+
+  /* ---- agent network (Platform) ---- */
+  function buildNet(){
+    var host=document.getElementById("net");if(!host)return;
+    var nodes=[{x:70,y:60,l:"SIGNAL"},{x:330,y:60,l:"RISK"},{x:330,y:280,l:"EXEC"},{x:70,y:280,l:"AUDIT"}],hub={x:200,y:170};
+    var s='<svg viewBox="0 0 400 340" role="img" aria-label="Strategist coordinating specialist agents">';
+    nodes.forEach(function(n){s+='<path class="lk" d="M'+hub.x+' '+hub.y+' L'+n.x+' '+n.y+'"/>';});
+    nodes.forEach(function(n,i){s+='<path class="flow" style="animation-delay:'+(i*0.35)+'s" d="M'+hub.x+' '+hub.y+' L'+n.x+' '+n.y+'"/>';});
+    nodes.forEach(function(n){s+='<circle class="node" cx="'+n.x+'" cy="'+n.y+'" r="26"/><text x="'+n.x+'" y="'+(n.y+3)+'" text-anchor="middle">'+n.l+'</text>';});
+    s+='<circle class="node hub" cx="'+hub.x+'" cy="'+hub.y+'" r="34"/><text class="hubt" x="'+hub.x+'" y="'+(hub.y+3)+'" text-anchor="middle">STRAT</text></svg>';
+    host.innerHTML=s;
+  }
+
+  /* ---- marketplace agents ---- */
+  var agents=[
+    {nm:"Strategist",ty:"Coordinator",desc:"Your user-owned agent. Instructs the desk in plain English.",price:"User-owned",rep:"—",own:true,g:"◆"},
+    {nm:"Aster Signals",ty:"Signal",desc:"Momentum + order-flow entries with confidence scores.",price:"0.05 USDT",rep:"4.8",g:"◈"},
+    {nm:"Sentinel Risk",ty:"Risk",desc:"Approve / resize / veto with volatility-aware sizing.",price:"0.04 USDT",rep:"4.9",g:"◇"},
+    {nm:"Relay Exec",ty:"Execution",desc:"Smart routing across HSKSwap pools with slippage caps.",price:"0.03 USDT",rep:"4.7",g:"▷"},
+    {nm:"Veritas Auditor",ty:"Audit",desc:"Replays settled trades and signs epoch PnL attestations.",price:"0.10 USDT",rep:"5.0",g:"✓"},
+    {nm:"Oracle Feed",ty:"Data",desc:"Cross-venue price and sentiment stream for the Strategist.",price:"0.02 USDT",rep:"4.6",g:"◎"}
+  ];
+  function buildAgents(){
+    var g=document.getElementById("agent-grid");if(!g)return;
+    g.innerHTML=agents.map(function(a){return(
+      '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="ic">'+a.g+'</div>'+
+      '<span class="pill '+(a.own?"buy":"")+'" style="'+(a.own?"":"background:var(--bg);color:var(--sub)")+'">'+(a.own?"Your agent":a.ty)+'</span></div>'+
+      '<h3 style="margin-top:6px">'+a.nm+'</h3><p>'+a.desc+'</p>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px"><span class="khash">'+(a.own?"session key":"per call · "+a.price)+'</span>'+
+      '<span class="khash">'+(a.own?"bounded":"★ "+a.rep)+'</span></div></div>');
+    }).join("");
+  }
+
+  /* ---- charts (Performance) ---- */
+  var chartsBuilt=false;
+  function buildCharts(){
+    if(chartsBuilt)return;chartsBuilt=true;
+    // equity curve
+    var pts=[100,100.4,99.7,101.1,102.3,101.6,103,104.1,103.3,105,106.4,105.9,107.2,108.6,109.4,108.9,110.2,111.6,112.1,113.4];
+    var W=620,Hh=200,pad=10,max=Math.max.apply(0,pts),min=Math.min.apply(0,pts),rng=(max-min)||1,sx=W/(pts.length-1);
+    var d=pts.map(function(p,i){return (i?"L":"M")+(i*sx).toFixed(1)+" "+(Hh-pad-((p-min)/rng)*(Hh-pad*2)).toFixed(1);}).join(" ");
+    var area=d+" L"+W+" "+Hh+" L0 "+Hh+" Z";
+    var host=document.getElementById("eqchart");
+    host.insertAdjacentHTML("beforeend",'<svg viewBox="0 0 '+W+' '+Hh+'" preserveAspectRatio="none" style="height:200px">'+
+      '<defs><linearGradient id="eqfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#111" stop-opacity=".16"/><stop offset="1" stop-color="#111" stop-opacity="0"/></linearGradient></defs>'+
+      '<path class="area" d="'+area+'"/><path class="line" pathLength="1" d="'+d+'"/></svg>');
+    // monthly bars
+    var months=[2.1,-0.8,1.6,3.0,-1.2,2.4,0.9,1.8,-0.5,2.7,1.3,2.0];
+    var bars=document.getElementById("bars");var mx=Math.max.apply(0,months.map(Math.abs));
+    bars.innerHTML=months.map(function(m){var h=(Math.abs(m)/mx*100).toFixed(0);return '<span class="bar" style="--h:'+h+'%;background:'+(m>=0?"var(--pos)":"var(--neg)")+'" title="'+m+'%"></span>';}).join("");
+  }
+  function animateCharts(){
+    buildCharts();
+    requestAnimationFrame(function(){
+      document.querySelectorAll("#performance [data-chart]").forEach(function(c){
+        if(reduce){c.classList.add("in");var ln=c.querySelector(".line");if(ln)ln.style.strokeDashoffset="0";return;}
+        var ln=c.querySelector(".line");
+        if(ln){ln.style.strokeDasharray="1";ln.style.strokeDashoffset="1";ln.getBoundingClientRect();ln.style.transition="stroke-dashoffset 1.6s cubic-bezier(.22,1,.36,1)";ln.style.strokeDashoffset="0";}
+        c.classList.remove("in");c.getBoundingClientRect();c.classList.add("in");
+      });
+    });
+  }
+
+  /* ---- live settlements ledger (Performance) ---- */
+  var ASSETS=["HSK/USDT","ETH/USDT","BTC/USDT","SOL/USDT"],id=0;
+  function rowHtml(){
+    var a=ASSETS[Math.floor(Math.random()*ASSETS.length)],buy=Math.random()>.5,res=(Math.random()*5-1.4);
+    return '<div class="row"><span class="mono">'+a+'</span><span class="pill '+(buy?"buy":"sell")+'">'+(buy?"BUY":"SELL")+'</span>'+
+      '<span class="mono '+(res>=0?"pos":"neg")+'">'+(res>=0?"+":"")+res.toFixed(2)+'%</span></div>';
+  }
+  function startLedger(){
+    var el=document.getElementById("ledger");if(!el)return;
+    if(!el.children.length){var h="";for(var i=0;i<6;i++)h+=rowHtml();el.innerHTML=h;}
+    stopLedger();if(reduce)return;
+    ledgerTimer=setInterval(function(){el.insertAdjacentHTML("afterbegin",rowHtml());while(el.children.length>6)el.removeChild(el.lastChild);},3200);
+  }
+  function stopLedger(){if(ledgerTimer){clearInterval(ledgerTimer);ledgerTimer=null;}}
+
+  document.getElementById("joinform").addEventListener("submit",function(e){
+    e.preventDefault();var name=document.getElementById("jf-name").value.trim(),email=document.getElementById("jf-email").value.trim(),msg=document.getElementById("jf-msg");
+    if(name.length<2||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg.style.color="var(--neg)";msg.textContent="Please add your name and a valid email.";return;}
+    msg.style.color="var(--sub)";msg.textContent="Thanks, "+name+" — we’ll be in touch. (Demo: nothing was sent.)";this.reset();
+  });
+
+  buildNet();buildAgents();
+  show(current());
+})();
+</script>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Marketplace · Meridian</title>
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-shell="app" data-page="agents">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="page-head">
+    <h1>Agent Intelligence, On Demand.</h1>
+    <p class="lead">Discover specialized agents for market research, risk analysis, trade execution and financial verification. Hiring an agent sends a real on-chain USDT payment from your connected wallet.</p>
+    <div class="btnrow" style="margin-top:14px"><button class="btn btn-ghost btn-sm" id="faucet">Get 100 test USDT</button><span class="small t2" id="bal" style="align-self:center"></span></div>
+  </div>
+  <div class="card flat mb">
+    <div class="row between">
+      <input class="input" style="max-width:300px" placeholder="Search agents…" id="q"/>
+      <div class="row gap-sm">
+        <div class="chips" id="filters"><span class="chip" data-f="all">All</span><span class="chip" data-f="Signal">Signal</span><span class="chip" data-f="Risk">Risk</span><span class="chip" data-f="Execution">Execution</span><span class="chip" data-f="Auditor">Auditor</span></div>
+        <select class="select" style="width:auto"><option>Sort: Reputation</option><option>Sort: Price</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="grid g3" id="grid"></div>
+</div>
+<script src="assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="assets/web3.js"></script>
+<script>
+(function(){
+  var grid=document.getElementById("grid");
+  var ROLE_GLYPH={Strategist:"◆",Signal:"◈",Risk:"◇",Execution:"▷",Auditor:"✓",Data:"◎"};
+  var agents=[], curF="all", curQ="";
+
+  function emptyState(){
+    var url=window.MWEB3?MWEB3.explorerAddr(MWEB3.deployment.contracts.ReputationRegistry):"#";
+    return "<div class='card flat' style='grid-column:1/-1;text-align:center;padding:48px 24px'>"
+      +"<div style='font-size:30px;opacity:.45'>◍</div>"
+      +"<h3 style='margin-top:12px'>No agents registered on-chain yet</h3>"
+      +"<p class='t2 small' style='margin-top:6px;max-width:52ch;margin-inline:auto'>This directory is read live from the ReputationRegistry on HSK testnet, which currently has zero registered agents. It will populate as agents register and stake — nothing here is mock data.</p>"
+      +"<a class='small acc' style='display:inline-block;margin-top:14px' href='"+url+"' target='_blank' rel='noopener'>View ReputationRegistry on explorer ↗</a></div>";
+  }
+  function card(a){
+    var g=ROLE_GLYPH[a.role]||"◎";
+    return "<div class='agentcard' data-role='"+a.role+"'>"
+      +"<div class='ah'><div class='av'>"+g+"</div><div><div class='nm'>"+a.name+"</div><div class='ty'>"+a.role+"</div></div></div>"
+      +"<p class='addr small t2'>"+a.address.slice(0,8)+"…"+a.address.slice(-6)+"</p>"
+      +"<div class='meta'><div class='mi'><div class='mk'>Reputation</div><div class='mv acc'>"+a.score+" / 1000</div></div>"
+      +  "<div class='mi'><div class='mk'>Stake</div><div class='mv'>"+a.stake.toFixed(2)+" HSK</div></div>"
+      +  "<div class='mi'><div class='mk'>Success</div><div class='mv'>"+(a.successRate==null?"—":a.successRate+"%")+"</div></div></div>"
+      +"<div class='row between' style='margin-top:auto;gap:8px;flex-wrap:wrap'>"+window.MERIDIAN.stBadge(a.active?"Active":"Available")
+      +  "<button class='btn btn-accent btn-sm' data-pay data-addr='"+a.address+"' data-nm=\""+a.name+"\">Hire · pay 0.05 USDT</button></div></div>";
+  }
+  function render(list){ grid.innerHTML=(list&&list.length)?list.map(card).join(""):emptyState(); }
+  function applyFilters(){
+    render(agents.filter(function(a){
+      var okF=curF==="all"||(a.role||"").toLowerCase().indexOf(curF.toLowerCase())>-1;
+      var okQ=!curQ||(a.name+" "+a.role).toLowerCase().indexOf(curQ)>-1;
+      return okF&&okQ;
+    }));
+  }
+  grid.innerHTML="<div class='card flat' style='grid-column:1/-1;text-align:center;padding:40px'><span class='t2'>Reading agents from chain…</span></div>";
+  function load(){ if(!window.MWEB3){ render([]); return; } MWEB3.listAgents().then(function(l){ agents=l; applyFilters(); }).catch(function(){ render([]); }); }
+
+  document.querySelectorAll("#filters .chip").forEach(function(c){ c.addEventListener("click",function(){ curF=c.getAttribute("data-f"); applyFilters(); }); });
+  var q=document.getElementById("q"); if(q) q.addEventListener("input",function(e){ curQ=e.target.value.toLowerCase(); applyFilters(); });
+
+  function refreshBal(){ var el=document.getElementById("bal"); if(!el||!window.MWEB3) return;
+    if(window.MERIDIAN_wallet && !MERIDIAN_wallet.getAccount()){ el.textContent=""; return; }
+    MWEB3.usdtBalance().then(function(b){ el.textContent="Balance: "+b.toFixed(2)+" USDT"; }).catch(function(){ el.textContent=""; }); }
+  setTimeout(refreshBal,800); document.addEventListener("meridian:wallet", refreshBal);
+
+  document.getElementById("faucet").addEventListener("click", function(){ var b=this;
+    if(!window.MWEB3){ toast("On-chain layer not loaded — reload","err"); return; }
+    if(window.MERIDIAN_wallet && !MERIDIAN_wallet.getAccount()){ MERIDIAN_wallet.open(); return; }
+    var old=b.textContent; b.disabled=true; b.textContent="Minting…";
+    MWEB3.mintTestUsdt(100).then(function(h){ b.disabled=false; b.textContent=old; refreshBal(); toast("Minted 100 test USDT","ok"); console.log("mint tx:",MWEB3.explorerTx(h)); })
+      .catch(function(err){ b.disabled=false; b.textContent=old; toast((err&&(err.shortMessage||err.message))||"Mint failed","err"); }); });
+
+  // REAL on-chain agent payment to the agent's own registered address.
+  grid.addEventListener("click", function(e){ var b=e.target.closest("[data-pay]"); if(!b) return;
+    if(!window.MWEB3){ toast("On-chain layer not loaded — reload","err"); return; }
+    if(window.MERIDIAN_wallet && !MERIDIAN_wallet.getAccount()){ MERIDIAN_wallet.open(); return; }
+    var payee=b.getAttribute("data-addr"), nm=b.getAttribute("data-nm"), old=b.textContent;
+    b.disabled=true; b.textContent="Confirm in wallet…";
+    MWEB3.payAgent({ payee:payee, amountUsdt:0.05 }).then(function(hash){
+      b.textContent="Paid ✓"; toast("Paid "+nm+" · 0.05 USDT on-chain","ok"); refreshBal();
+      var link=document.createElement("a"); link.href=MWEB3.explorerTx(hash); link.target="_blank"; link.rel="noopener";
+      link.className="small acc"; link.style.cssText="display:block;margin-top:8px"; link.textContent="View tx on explorer ↗"; b.parentElement.appendChild(link);
+    }).catch(function(err){ b.disabled=false; b.textContent=old; toast((err&&(err.shortMessage||err.reason||err.message))||"Payment failed","err"); }); });
+
+  load();
+})();
+</script>
+</body>
+</html>

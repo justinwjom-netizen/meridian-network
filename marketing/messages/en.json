@@ -1,0 +1,47 @@
+{
+  "common": {
+    "getStarted": "Get Started",
+    "signIn": "Sign in",
+    "startFreeTrial": "Start free trial",
+    "startFreeTrialCaps": "Start FREE trial",
+    "trialCaption": "2-week commitment-free trial",
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "openAccount": "Open an account",
+    "getFreeTokens": "Get FREE tokens",
+    "whitepaper": "Whitepaper",
+    "demoData": "Demo data",
+    "riskWarningShort": "Trading involves substantial risk of loss. Past performance is not indicative of future results."
+  },
+  "nav": {
+    "token": "Token",
+    "aiTrading": "AI Trading",
+    "tradingTiers": "Trading Tiers",
+    "technology": "Technology",
+    "profitability": "Profitability",
+    "company": "Company"
+  },
+  "home": {
+    "heroATitle": "Trade smarter with AI.",
+    "heroAText": "Meridian puts state-of-the-art machine-learning technology to work across crypto, forex and stocks — so your portfolio never sleeps.",
+    "heroBTitle": "Control your financial future.",
+    "officialPartners": "Official partners",
+    "inTheMedia": "In the media",
+    "lastNews": "Last news",
+    "lastOperations": "Last operations"
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "riskWarning": "Risk warning",
+    "rights": "All rights reserved."
+  },
+  "cookie": {
+    "title": "We value your privacy",
+    "acceptAll": "Accept all",
+    "declineAll": "Decline all",
+    "save": "Save preferences"
+  }
+}

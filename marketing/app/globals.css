@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   DESIGN TOKENS  —  all colors are HSL triplets so Tailwind can
+   apply <alpha-value>. Dark is the default; .light overrides.
+   To rebrand: change --primary / --accent-glow below.
+   ============================================================ */
+@layer base {
+  :root,
+  .dark {
+    --bg: 230 35% 7%; /* deep navy / near-black */
+    --surface: 230 28% 11%;
+    --surface-2: 230 24% 15%;
+    --border: 230 20% 22%;
+    --text: 220 30% 96%;
+    --muted: 222 15% 65%;
+
+    --primary: 255 92% 66%; /* electric violet accent */
+    --primary-foreground: 255 100% 98%;
+    --accent-glow: 190 95% 55%; /* cyan glow */
+
+    --success: 152 72% 45%;
+    --danger: 356 80% 62%;
+
+    --radius: 20px;
+
+    --font-sans: "Plus Jakarta Sans";
+    --font-display: "Sora";
+  }
+
+  .light {
+    --bg: 220 40% 98%;
+    --surface: 0 0% 100%;
+    --surface-2: 220 30% 96%;
+    --border: 220 20% 88%;
+    --text: 230 35% 12%;
+    --muted: 222 12% 42%;
+
+    --primary: 255 85% 58%;
+    --primary-foreground: 0 0% 100%;
+    --accent-glow: 190 90% 42%;
+
+    --success: 152 65% 38%;
+    --danger: 356 72% 52%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+    background-image:
+      radial-gradient(70% 55% at 50% -10%, hsl(var(--primary) / 0.14) 0%, transparent 60%),
+      radial-gradient(45% 40% at 100% 10%, hsl(var(--accent-glow) / 0.1) 0%, transparent 55%);
+    background-attachment: fixed;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-bg;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-bold tracking-tight;
+  }
+}
+
+/* ============================================================
+   REUSABLE COMPONENT UTILITIES
+   ============================================================ */
+@layer components {
+  .glass {
+    @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  }
+  .light .glass {
+    @apply border-black/[0.06] bg-black/[0.02];
+  }
+
+  .section {
+    @apply py-16 md:py-24 lg:py-28;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-pill border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary;
+  }
+
+  .glow-ring {
+    @apply shadow-glow;
+  }
+
+  .text-gradient {
+    @apply bg-primary-gradient bg-clip-text text-transparent;
+  }
+}
+
+/* ============================================================
+   MOTION — honor reduced-motion for every animation utility
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* marquee: duplicate track + translateX(-50%) for a seamless loop */
+.marquee-track {
+  display: inline-flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* hide scrollbars on horizontal mobile scrollers while keeping them usable */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

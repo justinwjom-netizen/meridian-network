@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mandate Detail · Meridian</title>
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-shell="app" data-page="mandate">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div style="margin-bottom:16px"><a class="small t2" href="app-mandates.html">← Mandates</a></div>
+  <div id="d"></div>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){
+  var M=window.MERIDIAN, ico=window.ico;
+  var id=(new URLSearchParams(location.search)).get("id")||"MND-7F3A21";
+  var m=M.mandates.filter(function(x){return x.id===id;})[0]||M.mandates[0];
+  var steps=[["Payment conditions received","ok"],["Policy validation","ok"],["Mandate construction","ok"],["Signature & approval","ok"],["Nonce & expiry verified","ok"],["HSP Gateway settlement",m.status==="Settled"?"ok":(m.status==="Rejected"?"err":"warn")],["Service delivery",m.status==="Settled"?"ok":"warn"]];
+  function row(k,v,mono){ return "<div class='row between' style='padding:10px 0;border-bottom:1px solid var(--border-2)'><span class='small t2'>"+k+"</span><span class='"+(mono?"num":"")+"'>"+v+"</span></div>"; }
+  document.getElementById("d").innerHTML =
+    "<div class='page-head'><div class='row between'><div><h1 style='font-size:24px'>"+m.id+"</h1><p class='lead'>"+m.purpose+" · "+m.payee+"</p></div>"+M.stBadge(m.status)+"</div></div>"
+    + "<div class='grid' style='grid-template-columns:1.4fr 1fr;gap:20px'>"
+    + "<div class='panel'><div class='panel-head'><h3>Settlement lifecycle</h3></div><div style='padding:14px 18px'><div class='feed'>"
+    +   steps.map(function(s){return "<div class='ev "+s[1]+"'><div class='ic'>"+ico(s[1]==="ok"?"check":(s[1]==="err"?"x":"activity"))+"</div><div class='body'><div class='t'>"+s[0]+"</div></div></div>";}).join("")
+    + "</div></div></div>"
+    + "<div class='card pad-lg'>"
+    +   row("Payer","Vault")+row("Payee",m.payee)+row("Token / Amount",m.amount+" "+m.token,true)+row("Order ID","ORD-"+m.id.slice(4),true)+row("Nonce","412",true)+row("Expiry",m.expiry)
+    +   row("Policy validation","<span class='pos'>PASS</span>")+row("Signature","<span class='pos'>Valid</span>")+row("Gateway","<span class='"+(m.status==="Settled"?"pos":"neg")+"'>"+m.status+"</span>")
+    +   "<div class='row between' style='padding:10px 0'><span class='small t2'>Tx hash</span><span class='row gap-sm'><span class='addr'>"+m.tx+"</span>"+(m.tx!=="—"?"<button class='copybtn' data-copy='"+m.tx+"'>Copy</button>":"")+"</span></div>"
+    +   (m.tx!=="—"?"<a class='btn btn-solid btn-sm' style='width:100%;margin-top:10px' href='https://testnet-explorer.hskchain.net' target='_blank'>View on HSK Explorer "+ico("ext")+"</a>":"<div class='badge demo' style='margin-top:10px'><span class='dot'></span>No on-chain tx — simulated record</div>")
+    + "</div></div>";
+})();
+</script>
+</body>
+</html>

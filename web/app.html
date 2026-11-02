@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Overview · Meridian</title>
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-shell="app" data-page="overview">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+
+  <div class="page-head">
+    <div class="row between">
+      <div>
+        <h1>Overview</h1>
+        <p class="lead">Command center for your autonomous financial system.</p>
+      </div>
+      <div class="btnrow">
+        <span class="badge ok"><span class="dot"></span>Trading Active</span>
+        <button class="btn btn-danger btn-sm" id="pausebtn"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics m6 mb">
+    <div class="metric"><div class="k">Vault Balance</div><div class="v" data-k="vault">10,000.00 <small style="font-size:13px;color:var(--muted)">USDT</small></div><div class="sub">on-chain</div></div>
+    <div class="metric"><div class="k">Portfolio Value</div><div class="v">10,342.60</div><div class="sub pos">+3.42% all-time</div></div>
+    <div class="metric"><div class="k">Realized PnL</div><div class="v pos" data-k="rpnl">+0.00 USDT</div><div class="sub">this session</div></div>
+    <div class="metric"><div class="k">Total Trades</div><div class="v" data-k="trades">0</div><div class="sub">settled</div></div>
+    <div class="metric"><div class="k">Win Rate</div><div class="v" data-k="wr">—</div><div class="sub">realized</div></div>
+    <div class="metric"><div class="k">Agent Spend · 24h</div><div class="v">3.42</div><div class="sub">of 20.00 cap</div></div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1.6fr 1fr;gap:20px">
+    <div class="stack" style="gap:20px">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="row gap-sm"><h3>Portfolio Equity</h3><span class="badge demo"><span class="dot"></span>Illustrative</span></div>
+          <div class="ranges" id="ranges"><button data-r="1H">1H</button><button data-r="24H" class="on">24H</button><button data-r="7D">7D</button><button data-r="30D">30D</button><button data-r="ALL">ALL</button></div>
+        </div>
+        <div style="padding:18px"><div class="chart" id="eq"></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Agent Activity Stream</h3><a class="small t2" href="app-activity.html">Explorer →</a></div>
+        <div style="padding:8px 18px 14px"><div class="feed" id="feed"></div></div>
+      </div>
+    </div>
+
+    <div class="stack" style="gap:20px">
+      <div class="panel">
+        <div class="panel-head"><h3>Risk Overview</h3></div>
+        <div style="padding:18px" id="risk"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>System Flow</h3><span class="label">status</span></div>
+        <div style="padding:8px 18px 16px" id="sysflow"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){
+  var M=window.MERIDIAN, ico=window.ico;
+  document.getElementById("pausebtn").innerHTML=ico("pause")+" Quick Pause";
+  document.getElementById("pausebtn").addEventListener("click",function(){
+    if(!M.online){ M.toast("Backend offline — start the server to pause on-chain","err"); return; }
+    M.chat("pause trading").then(function(){ M.toast("Pause command sent to Strategist","ok"); refresh(); }).catch(function(){ M.toast("Request failed","err"); });
+  });
+
+  // equity chart with ranges
+  var series={ "1H":[100,100.1,99.9,100.3,100.2,100.5,100.4,100.7], "24H":[100,100.4,99.6,101,101.4,100.8,101.6,102.4,101.9,103,103.6,104.1,103.4],
+    "7D":[100,101,100.2,102,103.4,102.8,104,105.2,104.6,106,107.4], "30D":[100,99,101,100.4,102,104,103,105,104.2,106,105.4,107.6,108.4], "ALL":[100,98,101,103,102,105,104,107,106,109,108,111,113.4] };
+  function draw(r){ M.curve(document.getElementById("eq"), series[r]||series["24H"], 190); }
+  draw("24H");
+  document.querySelectorAll("#ranges button").forEach(function(b){ b.addEventListener("click",function(){ document.querySelectorAll("#ranges button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); draw(b.getAttribute("data-r")); }); });
+
+  var feedEl=document.getElementById("feed");
+  M.renderFeed(feedEl, M.activity);
+
+  // risk gauges
+  function gauge(label,used,total,unit,cls){ var pct=Math.min(100,used/total*100);
+    return "<div style='margin-bottom:16px'><div class='gauge'><span>"+label+"</span><span class='r num'>"+used+" / "+total+" "+unit+"</span></div><div class='bar "+(cls||"")+"'><i style='width:"+pct+"%'></i></div></div>"; }
+  function renderRisk(spend,budget,agents){
+    document.getElementById("risk").innerHTML =
+      gauge("Per-trade usage",0,500,"USDT")
+      + gauge("Daily loss limit",0,100,"USDT")
+      + gauge("Agent service budget",spend,budget,"USDT", spend/budget>.8?"warn":"")
+      + "<div class='row between' style='margin-top:4px;padding-top:12px;border-top:1px solid var(--border)'><span class='small t2'>Approved agents</span><span class='num'>"+agents+"</span></div>"
+      + "<div class='row between' style='margin-top:10px'><span class='small t2'>Recent policy decisions</span><span class='small'><span class='pos'>pass</span> · <span class='neg'>reject</span> enforced on-chain</span></div>";
+  }
+  renderRisk(3.42,20,4);
+
+  // --- live refresh from backend ---
+  function set(id,html){ var e=document.querySelector("[data-k='"+id+"']"); if(e) e.innerHTML=html; }
+  function refresh(){
+    M.getPositions().then(function(p){ if(p&&p.formatted){ set("vault", (p.formatted.usdt||"").replace(" USDT","")+" <small style='font-size:13px;color:var(--muted)'>USDT</small>"); } });
+    M.getPnl().then(function(d){ if(d){ var pos=(d.cumulativePnLUsdt||"").indexOf("-")<0;
+      set("rpnl","<span class='"+(pos?"pos":"neg")+"'>"+(pos?"+":"")+(d.cumulativePnLUsdt||"0.00 USDT")+"</span>");
+      set("trades", d.totalTrades!=null?d.totalTrades:"0"); set("wr", d.winRate||"—"); } });
+    M.getActivity().then(function(a){ M.renderFeed(feedEl, a); });
+    M.getAgents().then(function(l){ renderRisk(3.42,20,Math.max(0,l.length-1)); });
+  }
+
+  // system flow statuses (reflect real connection)
+  function renderSys(online){
+    var st = online? ["ACTIVE","ok"] : ["OFFLINE","warn"];
+    var sys=[["Strategist"],["Signal Agent"],["Risk Agent"],["Execution Agent"],["Auditor Agent"],["HSP Gateway"]].map(function(s){ return [s[0],st[0],st[1]]; });
+    sys.push(["HSK Chain", online?"CONNECTED":"NOT CONNECTED", online?"ok":"warn"]);
+    document.getElementById("sysflow").innerHTML = sys.map(function(s){
+      return "<div class='row between' style='padding:9px 0;border-bottom:1px solid var(--border-2)'><span class='small'>"+s[0]+"</span><span class='badge "+s[2]+"'><span class='dot'></span>"+s[1]+"</span></div>";
+    }).join("");
+  }
+  renderSys(false);
+  document.addEventListener("meridian:status", function(e){ renderSys(e.detail.online); if(e.detail.online) refresh(); });
+  if(M.online){ renderSys(true); refresh(); }
+
+  // live events stream to the top of the feed
+  M.onEvent(function(ev){ var items=[ev].concat(Array.prototype.slice.call(feedEl.querySelectorAll(".ev")).slice(0,6).map(function(){return null;})); M.getActivity().then(function(a){ M.renderFeed(feedEl, a); }); });
+})();
+</script>
+</body>
+</html>

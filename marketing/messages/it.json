@@ -1,0 +1,21 @@
+{
+  "common": {
+    "getStarted": "Inizia",
+    "signIn": "Accedi",
+    "startFreeTrial": "Prova gratuita",
+    "trialCaption": "Prova di 2 settimane senza impegno",
+    "whitepaper": "Whitepaper"
+  },
+  "nav": {
+    "token": "Token",
+    "aiTrading": "Trading con IA",
+    "technology": "Tecnologia",
+    "company": "Azienda"
+  },
+  "cookie": {
+    "title": "Teniamo alla tua privacy",
+    "acceptAll": "Accetta tutto",
+    "declineAll": "Rifiuta tutto",
+    "save": "Salva preferenze"
+  }
+}

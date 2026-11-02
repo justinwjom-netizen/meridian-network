@@ -1,0 +1,46 @@
+{
+  "name": "meridian-monorepo",
+  "version": "1.0.0",
+  "description": "Meridian - Agent-Native Finance Network (HSK Chain Horizon Hackathon)",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && hardhat compile",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx packages/server/test/e2e.test.ts",
+    "test:contracts": "tsx contracts/test/contracts.test.ts",
+    "start:server": "tsx packages/server/src/index.ts",
+    "start:agents": "tsx packages/agents/src/run-all.ts",
+    "demo:e2e": "tsx packages/server/src/demo.ts",
+    "mcp:pay": "tsx packages/mcp/src/pay-server.ts",
+    "mcp:trade": "tsx packages/mcp/src/trade-server.ts",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.cjs --network hsk",
+    "deploy:testnet": "hardhat run scripts/deploy.cjs --network hsktestnet",
+    "deploy:local": "hardhat run scripts/deploy.cjs --network hardhat",
+    "deploy:tokens:testnet": "hardhat run scripts/deploy-tokens.cjs --network hsktestnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.20.5",
+    "@types/ws": "^8.18.2",
+    "hardhat": "^2.22.17",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.17.0",
+    "express": "^5.3.0",
+    "viem": "^2.57.13",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  }
+}

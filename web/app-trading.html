@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trading Terminal · Meridian</title>
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-shell="app" data-page="trading">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+
+  <div class="page-head">
+    <div class="row between">
+      <div><h1>Trading Terminal</h1><p class="lead">Autonomous execution on HSKSwap, bounded by your PolicyVault.</p></div>
+      <div class="btnrow">
+        <select class="select" style="width:auto"><option>HSK / USDT</option><option>WETH / USDT</option><option>HSK / WETH</option></select>
+        <button class="btn btn-danger btn-sm" id="pz"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1.55fr 1fr;gap:20px">
+    <!-- left: market -->
+    <div class="stack" style="gap:20px">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="row gap-sm">
+            <h3>HSK / USDT</h3>
+            <span class="num" style="font-size:18px">2.5041</span>
+            <span class="badge ok"><span class="dot"></span>+1.84%</span>
+            <span class="badge demo"><span class="dot"></span>No live price</span>
+          </div>
+          <div class="row gap-sm label"><span>Pool liq ·</span><span class="num t2">2.5M USDT</span></div>
+        </div>
+        <div style="padding:18px"><div class="chart" id="mkt"></div></div>
+        <div class="tbl-wrap" style="border-top:1px solid var(--border)">
+          <table class="tbl"><thead><tr><th>Recent swaps</th><th class="num">In</th><th class="num">Out</th><th class="num">Rate</th><th>Tx</th></tr></thead><tbody id="swaps"></tbody></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Trade Lifecycle</h3><span class="label">last cycle</span></div>
+        <div style="padding:18px"><div class="flow" id="life"></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Open Positions</h3><a class="small t2" href="app-positions.html">All positions →</a></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Asset</th><th class="num">Qty</th><th class="num">Entry</th><th class="num">Mark</th><th class="num">PnL</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>HSK</td><td class="num">1,420.0</td><td class="num">2.4810</td><td class="num">2.5041</td><td class="num pos">+32.80</td><td><span class="badge ok"><span class="dot"></span>OK</span></td></tr>
+            <tr><td>WETH</td><td class="num">1.25</td><td class="num">2,410.0</td><td class="num">2,388.0</td><td class="num neg">-27.50</td><td><span class="badge warn"><span class="dot"></span>Watch</span></td></tr>
+          </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- right: strategist + preview -->
+    <div class="stack" style="gap:20px">
+      <div class="panel" style="display:flex;flex-direction:column;min-height:420px">
+        <div class="panel-head"><div class="row gap-sm"><h3>Strategist</h3><span class="badge live"><span class="dot"></span>Natural language</span></div></div>
+        <div class="feed scrolly" id="chat" style="padding:14px 18px;flex:1;max-height:360px;overflow-y:auto"></div>
+        <div class="chips" style="padding:0 18px 10px">
+          <span class="chip">Set daily loss limit to 2%</span>
+          <span class="chip">Limit agent spend to 20 USDT/day</span>
+          <span class="chip">Reduce my exposure by half</span>
+          <span class="chip">Pause trading immediately</span>
+          <span class="chip">Show my PnL today</span>
+        </div>
+        <form id="cf" style="display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border)">
+          <input class="input" id="ci" placeholder="Command the Strategist…" autocomplete="off"/>
+          <button class="btn btn-accent" type="submit">Send</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Trade Preview</h3><span class="badge live" id="prbadge"><span class="dot"></span>Live proposal</span></div>
+        <div style="padding:18px" id="preview">
+          <div class="row between" style="padding:8px 0"><span class="small t2">Pair / Direction</span><span class="num" id="prdir">HSK / USDT</span></div>
+          <div class="field" style="margin:8px 0"><label class="small t2">Amount to swap</label><div class="input-group"><input id="amtIn" value="100"/><span class="unit">USDT</span></div></div>
+          <div class="row between" style="padding:8px 0;border-top:1px solid var(--border-2)"><span class="small t2">Risk-approved size</span><span class="num" id="prsize">—</span></div>
+          <div class="row between" style="padding:8px 0;border-top:1px solid var(--border-2)"><span class="small t2">Max slippage</span><span class="num" id="prslip">—</span></div>
+          <div class="row between" style="padding:8px 0;border-top:1px solid var(--border-2)"><span class="small t2">Signal confidence</span><span class="num" id="prconf">—</span></div>
+          <div class="row between" style="padding:8px 0;border-top:1px solid var(--border-2)"><span class="small t2">Risk decision</span><span id="prrisk" class="badge muted"><span class="dot"></span>—</span></div>
+          <button class="btn btn-accent" style="width:100%;margin-top:14px" id="confirm">Confirm Trade</button>
+          <p class="small muted" style="margin-top:10px;text-align:center" id="confirm-hint">Connect a wallet to execute.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="assets/web3.js"></script>
+<script>
+(function(){
+  var M=window.MERIDIAN, ico=window.ico;
+  // Pause the vault — signed by the connected user's wallet. Nothing auto-runs.
+  document.getElementById("pz").innerHTML=ico("pause")+" Pause";
+  document.getElementById("pz").addEventListener("click",async function(){
+    if(!(window.MERIDIAN_wallet&&window.MERIDIAN_wallet.getAccount&&window.MERIDIAN_wallet.getAccount())){ M.toast("Connect your wallet first","err"); window.MERIDIAN_wallet&&window.MERIDIAN_wallet.open(); return; }
+    try{
+      M.toast("Confirm the pause in your wallet…","");
+      var h=await window.MWEB3.pause();
+      M.toast("Vault paused · tx "+h.slice(0,10)+"…","ok");
+    }catch(e){ M.toast(cleanErr(e),"err"); }
+  });
+  function cleanErr(e){ var m=(e&&(e.shortMessage||e.reason||e.message))||"Transaction failed"; if(/user rejected|denied/i.test(m)) return "You rejected the request in your wallet."; return m.length>120?m.slice(0,120)+"…":m; }
+  function walletAddr(){ return window.MERIDIAN_wallet&&window.MERIDIAN_wallet.getAccount&&window.MERIDIAN_wallet.getAccount(); }
+  M.curve(document.getElementById("mkt"), [2.48,2.47,2.49,2.485,2.50,2.495,2.51,2.50,2.498,2.504,2.5041], 180);
+  // swaps
+  var sw=[["+40 HSK","100 USDT","2.500","0x9c2f…a41b"],["+20 USDT","8 HSK","2.502","0x3ab8…7d02"],["+120 HSK","300 USDT","2.498","0x1f7c…9e55"]];
+  document.getElementById("swaps").innerHTML=sw.map(function(s){return "<tr><td class='pos'>"+s[0]+"</td><td class='num'>"+s[1]+"</td><td class='num'>"+s[1]+"</td><td class='num'>"+s[2]+"</td><td class='addr'>"+s[3]+"</td></tr>";}).join("");
+  // lifecycle
+  var life=[["01","Market Monitor","ok"],["02","Signal","ok"],["03","Risk Eval","ok"],["04","Policy Check","ok"],["05","Payment Auth","ok"],["06","Execution","ok"],["07","Audit Record","acc"]];
+  document.getElementById("life").innerHTML=life.map(function(l){return "<div class='fstep'><div class='fn'>"+l[0]+"</div><div class='ft' style='font-size:13px'>"+l[1]+"</div><div style='margin-top:8px'><span class='badge "+(l[2]==="acc"?"live":"ok")+"'><span class='dot'></span>"+(l[2]==="acc"?"Signed":"Done")+"</span></div></div>";}).join("");
+
+  // chat
+  var chat=document.getElementById("chat");
+  function add(who,html){ var d=document.createElement("div"); d.className="ev "+(who==="bot"?"acc":"");
+    d.innerHTML="<div class='ic'>"+ico(who==="bot"?"zap":"check")+"</div><div class='body'><div class='t'>"+html+"</div></div>"; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; return d; }
+  add("bot","I'm your Strategist. Instruct me in plain English — I compile supported requests into proposed, validated policy actions you approve.");
+  // Pending action compiled from the last command; executed ONLY when the user
+  // clicks Confirm, which triggers their wallet. The server never signs.
+  var pendingAction=null;
+
+  function actionCard(a){
+    var title, rows="", signLabel="Confirm in wallet";
+    if(a.action==="UPDATE_POLICY"){
+      title="Policy update"; var p=a.params||{};
+      if(p.perTradeCap!=null) rows+=rowHtml("Per-trade cap", p.perTradeCap+" USDT");
+      if(p.dailyLossLimit!=null) rows+=rowHtml("Daily loss limit", p.dailyLossLimit+" USDT");
+      if(p.dailyAgentCap!=null) rows+=rowHtml("Agent budget / day", p.dailyAgentCap+" USDT");
+      if(p.maxSlippageBps!=null) rows+=rowHtml("Max slippage", (p.maxSlippageBps/100)+"%");
+    } else if(a.action==="PAUSE"){ title="Pause vault"; signLabel="Confirm pause"; }
+    else if(a.action==="UNPAUSE"){ title="Resume vault"; signLabel="Confirm resume"; }
+    else { return "<b>Noted.</b> "+(a.userExplanation||""); }
+    return "<b>"+title+"</b><div class='small t2' style='margin:4px 0 8px'>"+(a.userExplanation||"")+"</div>"
+      + (rows?"<div style='border:1px solid var(--border);border-radius:8px;overflow:hidden'>"+rows+"</div>":"")
+      + "<div class='row between' style='margin-top:10px'><span class='badge warn'><span class='dot'></span>Your wallet signs · you pay gas</span>"
+      + "<button class='btn btn-accent btn-sm' id='confpol'>"+signLabel+"</button></div>";
+  }
+  function rowHtml(k,v){ return "<div class='row between' style='padding:8px 12px;border-bottom:1px solid var(--border-2)'><span class='small t2'>"+k+"</span><span class='num acc'>"+v+"</span></div>"; }
+
+  async function runPending(btn){
+    var a=pendingAction; if(!a) return;
+    if(!walletAddr()){ M.toast("Connect your wallet first","err"); window.MERIDIAN_wallet&&window.MERIDIAN_wallet.open(); return; }
+    btn.disabled=true; var orig=btn.textContent; btn.textContent="Check wallet…";
+    try{
+      var h;
+      if(a.action==="UPDATE_POLICY") h=await window.MWEB3.setPolicy(a.params||{});
+      else if(a.action==="PAUSE") h=await window.MWEB3.pause();
+      else if(a.action==="UNPAUSE") h=await window.MWEB3.unpause();
+      add("bot","<b>Confirmed on-chain.</b> <a class='acc' target='_blank' href='"+window.MWEB3.explorerTx(h)+"'>"+h.slice(0,14)+"… ↗</a>");
+      M.toast("Signed · "+h.slice(0,10)+"…","ok"); pendingAction=null;
+    }catch(e){
+      btn.disabled=false; btn.textContent=orig;
+      var msg=cleanErr(e);
+      if(/own this vault|own a configured|Deploy your own/i.test(msg)){
+        add("bot","You don't own a vault yet, so your wallet can't change its policy. <button class='btn btn-accent btn-sm' id='depv'>Deploy my vault →</button>");
+        var dv=document.getElementById("depv"); if(dv) dv.addEventListener("click",deployVault);
+      } else { M.toast(msg,"err"); }
+    }
+  }
+
+  var deployingVault=false;
+  async function deployVault(ev){
+    if(deployingVault) return;                       // guard: ignore double-clicks
+    if(!walletAddr()){ window.MERIDIAN_wallet&&window.MERIDIAN_wallet.open(); return; }
+    deployingVault=true;
+    var btn=ev&&ev.currentTarget, orig=btn?btn.innerHTML:"";
+    if(btn){ btn.disabled=true; btn.textContent="Deploying…"; }
+    var status=add("bot","<span class='muted'>Deploying your PolicyVault — confirm in your wallet…</span>");
+    try{
+      var addr=await window.MWEB3.deployMyVault();
+      status.querySelector(".t").innerHTML="<b>Your vault is live.</b> You are the owner. <a class='acc' target='_blank' href='"+window.MWEB3.explorerAddr(addr)+"'>"+addr.slice(0,14)+"… ↗</a><br/><span class='small t2'>Now retry your command — your wallet controls this vault.</span>";
+      M.toast("Vault deployed · you are owner","ok");                // button stays disabled — vault now exists
+    }catch(e){
+      status.querySelector(".t").innerHTML="<span class='t2'>Deploy cancelled or failed: "+cleanErr(e)+"</span>";
+      M.toast(cleanErr(e),"err");
+      if(btn){ btn.disabled=false; btn.innerHTML=orig; }             // allow retry only on failure
+    }finally{ deployingVault=false; }
+  }
+
+  function send(v){ if(!v.trim())return; add("user","<b>You:</b> "+v.replace(/</g,"&lt;"));
+    var pend=add("bot","<span class='muted'>Compiling…</span>");
+    M.chat(v).then(function(r){
+      var act=r&&r.action;
+      // server returns {action:{action,params,userExplanation}, reply}
+      var a=(act&&typeof act==="object")?act:{action:"NOTE",userExplanation:(r&&r.reply)||"Done."};
+      // Normalize base-unit (1e6) server params → human USDT for the wallet layer.
+      if(a.action==="UPDATE_POLICY"&&a.params){ var sp=a.params; a.params={
+        perTradeCap: sp.perTradeCap!=null?Number(sp.perTradeCap)/1e6:undefined,
+        dailyLossLimit: sp.dailyLossLimit!=null?Number(sp.dailyLossLimit)/1e6:undefined,
+        dailyAgentCap: sp.dailyAgentSpendCap!=null?Number(sp.dailyAgentSpendCap)/1e6:undefined,
+        maxSlippageBps: sp.maxSlippageBps
+      }; }
+      pendingAction=(a.action==="UPDATE_POLICY"||a.action==="PAUSE"||a.action==="UNPAUSE")?a:null;
+      pend.querySelector(".t").innerHTML=actionCard(a);
+      var cb=document.getElementById("confpol"); if(cb) cb.addEventListener("click",function(){ runPending(cb); });
+    }).catch(function(){ pend.querySelector(".t").innerHTML="Couldn't reach the Strategist service. Try again."; });
+  }
+  document.getElementById("cf").addEventListener("submit",function(e){ e.preventDefault(); var i=document.getElementById("ci"); send(i.value); i.value=""; });
+  document.querySelectorAll(".chip").forEach(function(c){ c.addEventListener("click",function(){ send(c.textContent); }); });
+  // ---- dynamic confirm-trade button ----
+  var confirmBtn = document.getElementById("confirm");
+  var confirmHint = document.getElementById("confirm-hint");
+
+  function setBtn(txt,cls,hint,hintColor){ confirmBtn.textContent=txt; confirmBtn.className="btn "+cls; confirmBtn.style.width="100%"; confirmBtn.style.marginTop="14px"; confirmHint.textContent=hint; confirmHint.style.color=hintColor||""; }
+
+  function updateConfirmState(){
+    if(walletAddr()) setBtn("Confirm Trade →","btn-accent","Your wallet signs every trade · you pay gas.","var(--pos)");
+    else setBtn("Connect Wallet to Trade","btn-ghost","Connect a wallet to execute live trades.","");
+  }
+  updateConfirmState();
+  document.addEventListener("meridian:wallet", updateConfirmState);
+  document.addEventListener("meridian:status", updateConfirmState);
+  window.addEventListener("storage", updateConfirmState);
+  setTimeout(updateConfirmState, 500);
+
+  // Live proposal from the Strategist (signal + risk + route). This is a
+  // PROPOSAL only — the server signs nothing. The user executes it via wallet.
+  function loadProposal(){
+    M.fetchJSON("/api/loop/step",{ method:"POST", body:JSON.stringify({ pair:"HSK/USDT" }) }).then(function(p){
+      if(!p) return;
+      var dir=document.getElementById("prdir"); if(dir&&p.signal) dir.textContent="HSK / USDT · "+(p.signal.action||"—");
+      var sz=document.getElementById("prsize"); if(sz) sz.textContent=p.recommendedAmountIn&&p.recommendedAmountIn!=="0"?(Number(p.recommendedAmountIn)/1e6).toFixed(2)+" USDT":"—";
+      var sl=document.getElementById("prslip"); if(sl&&p.signal&&p.signal.expectedSlippageBps!=null) sl.textContent=(p.signal.expectedSlippageBps/100)+"%";
+      var cf=document.getElementById("prconf"); if(cf&&p.signal&&p.signal.confidence!=null) cf.textContent=Math.round(p.signal.confidence*100)+"%";
+      var rk=document.getElementById("prrisk");
+      if(rk){ if(p.status==="VETOED_BY_RISK"){ rk.className="badge err"; rk.innerHTML="<span class='dot'></span>Vetoed"; }
+        else if(p.status==="HOLD"){ rk.className="badge warn"; rk.innerHTML="<span class='dot'></span>Hold"; }
+        else { rk.className="badge ok"; rk.innerHTML="<span class='dot'></span>Approved"; } }
+    }).catch(function(){});
+  }
+  loadProposal(); setInterval(loadProposal, 15000);
+
+  // REAL swap: the connected wallet signs executeSwap on the user's own vault.
+  // No fabricated steps, no synthetic hash — the tx hash is whatever the chain
+  // returns, and any revert is shown to the user verbatim.
+  async function runRealTrade(){
+    setBtn("Check your wallet…","btn-solid","Approve the transaction in your wallet.","var(--warn)");
+    confirmBtn.disabled=true;
+    add("bot","<b>Submitting trade</b> — your wallet will ask you to approve <code>PolicyVault.executeSwap</code>. Nothing executes without your signature.");
+    try{
+      var amt=100; var amtEl=document.getElementById("amtIn"); if(amtEl&&parseFloat(amtEl.value)) amt=parseFloat(amtEl.value);
+      var h=await window.MWEB3.executeSwap({ amountInUsdt:amt });
+      add("bot","<span class='badge ok'><span class='dot'></span>Swap confirmed</span> <a class='acc' target='_blank' href='"+window.MWEB3.explorerTx(h)+"'>"+h.slice(0,14)+"… ↗</a>");
+      setBtn("Trade Confirmed ✓","btn-solid","Settled on HSK Chain · signed by your wallet.","var(--pos)");
+      M.toast("Trade signed · "+h.slice(0,10)+"…","ok");
+      setTimeout(function(){ confirmBtn.disabled=false; updateConfirmState(); },4000);
+    }catch(e){
+      confirmBtn.disabled=false; updateConfirmState();
+      var msg=cleanErr(e);
+      if(/own a configured vault|own this vault|Deploy/i.test(msg)){
+        add("bot","To trade with your own credits you need your own vault, funded with test USDT and trading enabled.<div class='row' style='gap:8px;margin-top:8px'><button class='btn btn-accent btn-sm' id='dvt'>Deploy my vault</button><button class='btn btn-ghost btn-sm' id='ent'>Enable trading</button></div>");
+        var d=document.getElementById("dvt"); if(d) d.addEventListener("click",deployVault);
+        var en=document.getElementById("ent"); if(en) en.addEventListener("click",enableTrading);
+      } else { add("bot","<span class='badge err'><span class='dot'></span>Not executed</span> <span class='small t2'>"+msg+"</span>"); M.toast(msg,"err"); }
+    }
+  }
+
+  var enablingTrading=false;
+  async function enableTrading(ev){
+    if(enablingTrading) return;                      // guard: ignore double-clicks
+    if(!walletAddr()){ window.MERIDIAN_wallet&&window.MERIDIAN_wallet.open(); return; }
+    enablingTrading=true;
+    var btn=ev&&ev.currentTarget, orig=btn?btn.innerHTML:"";
+    if(btn){ btn.disabled=true; btn.textContent="Enabling…"; }
+    var status=add("bot","<span class='muted'>Enabling trading — approve 3 allowlist transactions in your wallet…</span>");
+    try{
+      await window.MWEB3.enableTrading();
+      status.querySelector(".t").innerHTML="<b>Trading enabled on your vault.</b> Fund it with test USDT, then Confirm Trade.";
+      M.toast("Trading enabled","ok");
+    }catch(e){
+      status.querySelector(".t").innerHTML="<span class='t2'>Enable cancelled or failed: "+cleanErr(e)+"</span>";
+      M.toast(cleanErr(e),"err");
+      if(btn){ btn.disabled=false; btn.innerHTML=orig; }
+    }finally{ enablingTrading=false; }
+  }
+
+  confirmBtn.addEventListener("click", function(){
+    if(!walletAddr()){ window.MERIDIAN_wallet?window.MERIDIAN_wallet.open():M.toast("No wallet detected — install MetaMask or Rabby","err"); return; }
+    if(confirmBtn.disabled) return;
+    runRealTrade();
+  });
+})();
+</script>
+</body>
+</html>

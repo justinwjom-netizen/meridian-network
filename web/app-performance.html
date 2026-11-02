@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Performance · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="app" data-page="performance">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="page-head"><h1>Performance &amp; PnL</h1><p class="lead">Observed performance, backtests and independently attested records are labeled distinctly. A positive sample chart is not a promise of profit.</p></div>
+  <div class="panel mb"><div class="panel-head"><div class="row gap-sm"><h3>Equity Curve</h3><span class="badge demo"><span class="dot"></span>Illustrative</span></div>
+    <div class="ranges" id="rg"><button data-r="7D">7D</button><button data-r="30D" class="on">30D</button><button data-r="90D">90D</button><button data-r="ALL">ALL</button></div></div>
+    <div style="padding:18px"><div class="chart" id="eq"></div></div>
+    <div class="metrics m4" style="border:none;border-top:1px solid var(--border);border-radius:0">
+      <div class="metric"><div class="k">Win Rate</div><div class="v" data-k="wr">—</div><div class="sub">realized</div></div>
+      <div class="metric"><div class="k">Realized PnL</div><div class="v pos" data-k="rpnl">+0.00 USDT</div><div class="sub">this session</div></div>
+      <div class="metric"><div class="k">Total Trades</div><div class="v" data-k="trades">0</div><div class="sub">settled</div></div>
+      <div class="metric"><div class="k">Attestations</div><div class="v" data-k="att">0</div><div class="sub">epochs signed</div></div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="panel"><div class="panel-head"><h3>Auditor Attestations</h3></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Epoch</th><th>Auditor</th><th class="num">Attested PnL</th><th>Signature</th><th>Status</th></tr></thead><tbody id="att"></tbody></table></div></div>
+    <div class="panel"><div class="panel-head"><h3>Record Types</h3></div><div style="padding:18px;display:flex;flex-direction:column;gap:12px">
+      <div class="row between"><span class="small">Raw observed performance</span><span class="badge muted"><span class="dot"></span>Unverified</span></div>
+      <div class="row between"><span class="small">Backtested results</span><span class="badge info"><span class="dot"></span>Simulated</span></div>
+      <div class="row between"><span class="small">Auditor-signed attestation</span><span class="badge ok"><span class="dot"></span>Attested</span></div>
+      <p class="small muted">Attestations record what happened on settled trades. They do not guarantee correct economic outcomes.</p>
+    </div></div>
+  </div>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){ var M=window.MERIDIAN;
+  var s={ "7D":[100,101,100.4,102,103,102.6,104], "30D":[100,99,101,100.4,102,104,103,105,104.2,106,105.4,107.6,106.4], "90D":[100,98,102,101,104,103,107,106,109,108,112,114], "ALL":[100,96,101,99,104,102,108,106,111,109,114,118,122] };
+  function d(r){ M.curve(document.getElementById("eq"), s[r]||s["30D"], 200); }
+  d("30D"); document.querySelectorAll("#rg button").forEach(function(b){ b.onclick=function(){ document.querySelectorAll("#rg button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); d(b.getAttribute("data-r")); }; });
+  var a=[["42","Veritas","+184.20","0x8f1a…","Signed"],["41","Veritas","+142.80","0x7c02…","Signed"],["40","Veritas","+88.40","0x5de4…","Signed"]];
+  document.getElementById("att").innerHTML=a.map(function(r){return "<tr><td class='num'>"+r[0]+"</td><td>"+r[1]+"</td><td class='num pos'>"+r[2]+"</td><td class='addr'>"+r[3]+"</td><td>"+M.stBadge("Settled").replace("Settled","Signed")+"</td></tr>";}).join("");
+  function set(k,v){ var e=document.querySelector("[data-k='"+k+"']"); if(e) e.textContent=v; }
+  M.getPnl().then(function(d){ if(!d) return;
+    set("wr", d.winRate||"—"); set("trades", d.totalTrades!=null?d.totalTrades:"0"); set("att", (d.attestations&&d.attestations.length)||0);
+    var pos=(d.cumulativePnLUsdt||"").indexOf("-")<0; set("rpnl", (pos?"+":"")+(d.cumulativePnLUsdt||"0.00 USDT"));
+    if(d.attestations&&d.attestations.length){ document.getElementById("att").innerHTML=d.attestations.map(function(x){ var p=(Number(x.realizedPnL||0)/1e6); return "<tr><td class='num'>"+x.epochId+"</td><td>Veritas</td><td class='num "+(p>=0?"pos":"neg")+"'>"+(p>=0?"+":"")+p.toFixed(2)+"</td><td class='addr'>"+(x.pnlHash||"0x…").slice(0,8)+"…</td><td>"+M.stBadge("Settled").replace("Settled","Signed")+"</td></tr>"; }).join(""); }
+  });
+})();
+</script>
+</body>
+</html>

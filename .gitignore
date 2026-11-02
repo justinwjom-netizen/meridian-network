@@ -1,0 +1,23 @@
+node_modules/
+**/node_modules/
+dist/
+.DS_Store
+data/
+*.log
+.env
+.next/
+**/.next/
+*.tsbuildinfo
+kindred-serve/
+*.legacy.html
+
+# hardhat build output
+artifacts/
+cache/
+deployments/hardhat.json
+
+# never commit any env/key backups
+.env.*
+!.env.example
+*.key
+

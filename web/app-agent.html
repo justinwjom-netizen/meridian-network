@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Detail · Meridian</title>
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-shell="app" data-page="agents">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="topbar-crumb" style="margin-bottom:16px"><a class="small t2" href="app-agents.html">← Marketplace</a></div>
+  <div id="detail"></div>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){
+  var M=window.MERIDIAN, ico=window.ico;
+  var id=(new URLSearchParams(location.search)).get("id")||"alphaflow";
+  var a=M.agents.filter(function(x){return x.id===id;})[0]||M.agents[1];
+  var d=document.getElementById("detail");
+  d.innerHTML =
+    "<div class='page-head'><div class='row between'><div class='row gap-sm'>"
+    + "<div class='av' style='width:48px;height:48px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);color:var(--accent);font-weight:600'>"+a.av+"</div>"
+    + "<div><h1 style='font-size:26px'>"+a.nm+"</h1><div class='ty' style='font-family:var(--mono);color:var(--muted);font-size:12px;text-transform:uppercase'>"+a.ty+"</div></div></div>"
+    + "<button class='btn btn-accent' id='req'>Request Service</button></div></div>"
+    + "<div class='grid' style='grid-template-columns:1.6fr 1fr;gap:20px'>"
+    + "<div class='stack' style='gap:20px'>"
+    +   "<div class='card pad-lg'><h3 style='margin-bottom:10px'>About</h3><p class='t2'>"+a.desc+"</p>"
+    +     "<h3 style='margin:20px 0 10px'>Capabilities &amp; limitations</h3><ul style='list-style:none;display:flex;flex-direction:column;gap:9px'>"
+    +     ["Returns structured, schema-validated output","Priced per service call via HSP mandate","Released only after on-chain settlement","Does not hold user keys or construct transactions"].map(function(x){return "<li class='small t2'>· "+x+"</li>";}).join("")+"</ul></div>"
+    +   "<div class='panel'><div class='panel-head'><h3>Recent service calls</h3><span class='badge demo'><span class='dot'></span>Demo</span></div>"
+    +     "<div class='tbl-wrap'><table class='tbl'><thead><tr><th>Order</th><th>Service</th><th class='num'>Fee</th><th>Status</th><th>Tx</th></tr></thead><tbody>"
+    +     [["ORD-4821","signal.request","0.05","Settled","0x9c2f…a41b"],["ORD-4820","signal.request","0.05","Settled","0x3ab8…7d02"],["ORD-4819","signal.request","0.05","Settled","0x1f7c…9e55"]].map(function(r){return "<tr><td class='addr'>"+r[0]+"</td><td>"+r[1]+"</td><td class='num'>"+r[2]+" USDT</td><td>"+M.stBadge(r[3])+"</td><td class='addr'>"+r[4]+"</td></tr>";}).join("")
+    +     "</tbody></table></div></div>"
+    + "</div>"
+    + "<div class='stack' style='gap:20px'>"
+    +   "<div class='card'><div class='label'>Pricing</div><div class='num' style='font-size:22px;margin-top:8px;color:var(--accent)'>"+a.price+"</div><p class='small muted' style='margin-top:6px'>Per-call fee, settled via HSP Payment Mandate.</p></div>"
+    +   "<div class='metrics m3'><div class='metric'><div class='k'>Reputation</div><div class='v'>"+a.rep+"</div><div class='sub'>/ 1000</div></div><div class='metric'><div class='k'>Attestations</div><div class='v'>"+a.attest+"</div><div class='sub'>verified</div></div><div class='metric'><div class='k'>Status</div><div class='v' style='font-size:15px;color:var(--pos)'>LIVE</div><div class='sub'>available</div></div></div>"
+    +   "<div class='card'><div class='label'>Provider identity</div><p class='small t2' style='margin-top:8px'>Independent service provider. Sample identity, pricing and reputation shown for demonstration — not a verified third party.</p><div class='badge demo' style='margin-top:10px'><span class='dot'></span>Demo identity</div></div>"
+    + "</div></div>";
+  document.getElementById("req").addEventListener("click",function(){ M.toast("Request Service would show payment conditions & require approval","err"); });
+})();
+</script>
+</body>
+</html>

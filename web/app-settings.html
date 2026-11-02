@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Settings · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="app" data-page="settings">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="page-head"><h1>Settings</h1><p class="lead">Connection, execution mode and notification preferences.</p></div>
+  <div class="grid g2">
+    <div class="panel"><div class="panel-head"><h3>Execution Mode</h3></div><div style="padding:18px">
+      <div class="row between" style="padding:10px 0"><div><div style="font-weight:500">Backend</div><div class="small muted">Meridian API &amp; live WebSocket feed</div></div><span class="badge" id="modebadge"><span class="dot"></span>Checking…</span></div>
+      <div class="row between" style="padding:10px 0;border-top:1px solid var(--border-2)"><div><div style="font-weight:500">Wallet signing</div><div class="small muted">Required for on-chain writes from your account</div></div><div class="toggle" id="t1"></div></div>
+      <p class="small muted" style="margin-top:12px">On-chain writes are sent only when the backend confirms a connection. A simulated success is never substituted for a failed transaction.</p>
+    </div></div>
+    <div class="panel"><div class="panel-head"><h3>Connection</h3></div><div style="padding:18px">
+      <div class="row between" style="padding:9px 0;border-bottom:1px solid var(--border-2)"><span class="small t2">Network</span><span class="num">HSK Chain Testnet · 133</span></div>
+      <div class="row between" style="padding:9px 0;border-bottom:1px solid var(--border-2)"><span class="small t2">RPC</span><span class="addr">mainnet.hsk.xyz</span></div>
+      <div class="row between" style="padding:9px 0;border-bottom:1px solid var(--border-2)"><span class="small t2">Wallet</span><span class="badge warn"><span class="dot"></span>Not connected</span></div>
+      <div class="row between" style="padding:9px 0"><span class="small t2">Backend API</span><span class="badge" id="api"><span class="dot"></span>Checking…</span></div>
+      <button class="btn btn-accent" style="width:100%;margin-top:14px" id="connectbtn2">Connect Wallet</button>
+    </div></div>
+    <div class="panel"><div class="panel-head"><h3>Notifications</h3></div><div style="padding:18px;display:flex;flex-direction:column;gap:4px">
+      <div class="row between" style="padding:10px 0"><span class="small">Trade executed</span><div class="toggle on"></div></div>
+      <div class="row between" style="padding:10px 0;border-top:1px solid var(--border-2)"><span class="small">Policy rejection</span><div class="toggle on"></div></div>
+      <div class="row between" style="padding:10px 0;border-top:1px solid var(--border-2)"><span class="small">Mandate settled</span><div class="toggle"></div></div>
+      <div class="row between" style="padding:10px 0;border-top:1px solid var(--border-2)"><span class="small">Auditor attestation</span><div class="toggle on"></div></div>
+    </div></div>
+    <div class="panel"><div class="panel-head"><h3>Developer</h3></div><div style="padding:18px"><p class="small t2">MCP servers, SDK reference and integration status live in the developer portal.</p><a class="btn btn-solid" style="margin-top:12px" href="developers.html">Open Developer Portal →</a></div></div>
+  </div>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){ var M=window.MERIDIAN;
+  document.querySelectorAll(".toggle").forEach(function(t){ t.onclick=function(){ t.classList.toggle("on"); }; });
+  document.getElementById("t1").onclick=function(){ this.classList.remove("on"); M.toast("Live mode requires a confirmed connection","err"); };
+  document.getElementById("connectbtn2").onclick=function(){ M.connect(); };
+  function reflect(on){ var a=document.getElementById("api"), mb=document.getElementById("modebadge");
+    if(a){ a.className="badge "+(on?"ok":"warn"); a.innerHTML="<span class='dot'></span>"+(on?"Online":"Offline"); }
+    if(mb){ mb.className="badge "+(on?"ok":"warn"); mb.innerHTML="<span class='dot'></span>"+(on?"Connected":"Offline"); }
+    var wrow=document.querySelector(".badge.warn"); }
+  fetch(M.API_BASE+"/api/health").then(function(r){return r.ok?r.json():Promise.reject();}).then(function(){ reflect(true); }).catch(function(){ reflect(false); });
+  document.addEventListener("meridian:status", function(e){ reflect(e.detail.online); });
+})();
+</script>
+</body>
+</html>

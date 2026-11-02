@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Activity Explorer · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="app" data-page="activity">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="page-head"><h1>Activity Explorer</h1><p class="lead">Trace any action from the initial agent request to its settlement or rejection.</p></div>
+  <div class="card flat mb"><div class="chips" id="filters">
+    <span class="chip" data-f="all">All</span><span class="chip" data-f="trend">Trading</span><span class="chip" data-f="filecheck">Payments</span><span class="chip" data-f="shield">Policy</span><span class="chip" data-f="zap">Agent requests</span><span class="chip" data-f="x">Rejections</span><span class="chip" data-f="chart">Attestations</span>
+  </div></div>
+  <div class="panel"><div style="padding:10px 20px 16px"><div class="feed" id="feed"></div></div></div>
+</div>
+<script src="assets/site.js"></script>
+<script>
+(function(){ var M=window.MERIDIAN;
+  var all=M.activity.concat([
+    {k:"acc",ic:"zap",t:"<b>Signal requested</b> from AlphaFlow",m:["0.05 USDT","0x2a9b…11c4"],time:"14m ago"},
+    {k:"ok",ic:"filecheck",t:"<b>Mandate settled</b> MND-7F39E2",m:["AlphaFlow","0x1f7c…9e55"],time:"18m ago"},
+    {k:"acc",ic:"shield",t:"<b>Policy updated</b> — agent budget 20 USDT",m:["owner"],time:"2h ago"}
+  ]);
+  var curF="all";
+  function render(f){ curF=f||curF; M.renderFeed(document.getElementById("feed"), curF&&curF!=="all"?all.filter(function(e){return e.ic===curF;}):all); }
+  render("all");
+  M.getActivity().then(function(a){ if(a&&a.length){ all=a; render(); } });
+  M.onEvent(function(ev){ all=[ev].concat(all).slice(0,40); render(); });
+  document.querySelectorAll("#filters .chip").forEach(function(c){ c.onclick=function(){ render(c.getAttribute("data-f")); }; });
+})();
+</script>
+</body>
+</html>

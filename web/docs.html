@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Documentation · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="public" data-page="developers">
+<div id="site-nav"></div>
+<section class="section tight">
+  <div class="container">
+    <div class="grid" style="grid-template-columns:220px 1fr;gap:40px;align-items:start">
+      <aside style="position:sticky;top:76px">
+        <div class="label mb">Documentation</div>
+        <nav class="stack" style="gap:2px">
+          <a class="docn active" href="#start">Getting started</a>
+          <a class="docn" href="#arch">Architecture</a>
+          <a class="docn" href="#pay">Payment workflow</a>
+          <a class="docn" href="#trade">Trading workflow</a>
+          <a class="docn" href="#mcp">MCP servers</a>
+          <a class="docn" href="#security">Security model</a>
+          <a class="docn" href="#errors">Error handling</a>
+        </nav>
+      </aside>
+      <div class="docbody" style="max-width:720px">
+        <span class="eyebrow">Docs</span>
+        <h1 style="margin:14px 0" id="start">Getting started</h1>
+        <p class="lead">Meridian runs as a monorepo. The backend serves the API, WebSocket feed and this site; the terminal and marketing pages read demo data with a clean integration boundary.</p>
+        <div class="code" style="margin:20px 0"><div class="code-head"><span>terminal</span><button class="copybtn">Copy</button></div><pre>npm install
+npm run start:server   <span class="c"># http://localhost:3001</span>
+npm run mcp:pay        <span class="c"># meridian-pay-mcp (stdio)</span>
+npm run mcp:trade      <span class="c"># meridian-trade-mcp (stdio)</span></pre></div>
+        <h2 id="arch" style="margin:36px 0 12px">Architecture</h2>
+        <p class="t2">A user-owned Strategist executes strategies through HSKSwap. When it needs intelligence, it purchases services from specialist agents via HSP Payment Mandates, settled on HSK Chain. User-defined policies constrain trades, spend, payees and daily losses. See <a class="acc" href="how-it-works.html">How it works</a>.</p>
+        <h2 id="pay" style="margin:36px 0 12px">Payment workflow</h2>
+        <p class="t2 mb">A merchant agent returns signed conditions; the Strategist builds a mandate within policy; it settles on HSK Chain; the receipt is verified before the service result is released.</p>
+        <div class="code"><div class="code-head"><span>meridian-pay-mcp</span><button class="copybtn">Copy</button></div><pre><span class="f">create_payment_conditions</span>(payee, token, amount, service)
+<span class="f">build_mandate</span>(conditions)        <span class="c">// nonce + expiry</span>
+<span class="f">submit_mandate</span>(mandate)           <span class="c">// settle on HSK Chain</span>
+<span class="f">verify_settlement</span>(orderId)
+<span class="f">list_payments</span>()</pre></div>
+        <h2 id="trade" style="margin:36px 0 12px">Trading workflow</h2>
+        <div class="code"><div class="code-head"><span>meridian-trade-mcp</span><button class="copybtn">Copy</button></div><pre><span class="f">set_policy</span>(perTradeCap, dailyLoss, agentBudget, slippage)
+<span class="f">get_quote</span>(pair)
+<span class="f">propose_trade</span>(pair, size)         <span class="c">// validated vs PolicyVault</span>
+<span class="f">get_positions</span>() / <span class="f">get_pnl</span>()
+<span class="f">list_agents</span>()</pre></div>
+        <h2 id="security" style="margin:36px 0 12px">Security model</h2>
+        <p class="t2">Bounded session keys, per-trade and daily caps, approved-payee allowlists, replay-protected mandates and high-water-mark escrow. Full detail on the <a class="acc" href="security.html">Security page</a>.</p>
+        <h2 id="errors" style="margin:36px 0 12px">Error handling</h2>
+        <p class="t2 mb">Live mode surfaces rejected signatures, failed RPC, stale data, contract reverts and unavailable services. Simulated success is never substituted for a failed live transaction.</p>
+        <div class="badge demo"><span class="dot"></span>These docs describe intended interfaces — validate against the implementation before wiring live calls.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<div id="site-footer"></div>
+<style>.docn{ display:block; padding:7px 12px; border-radius:6px; font-size:13.5px; color:var(--text-2); } .docn:hover,.docn.active{ color:var(--text); background:var(--surface); } .docbody h2{ scroll-margin-top:72px; } .docbody h1{ scroll-margin-top:72px; }</style>
+<script src="assets/site.js"></script>
+<script>document.querySelectorAll(".docn").forEach(function(a){ a.onclick=function(){ document.querySelectorAll(".docn").forEach(function(x){x.classList.remove("active");}); a.classList.add("active"); }; });</script>
+</body>
+</html>

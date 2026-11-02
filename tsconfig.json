@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@meridian/sdk": ["packages/sdk/src/index.ts"],
+      "@meridian/agents": ["packages/agents/src/index.ts"],
+      "@meridian/mcp": ["packages/mcp/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/**/*",
+    "contracts/**/*"
+  ]
+}

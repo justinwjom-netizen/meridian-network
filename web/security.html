@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Security · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="public" data-page="security">
+<div id="site-nav"></div>
+<section class="section">
+  <div class="container maxw-md">
+    <span class="eyebrow rv">Security</span>
+    <h1 class="rv d1" style="margin-top:16px">Autonomy without unlimited authority.</h1>
+    <p class="lead rv d2" style="margin-top:16px">The model does not directly construct arbitrary transactions. Proposed actions are validated against schema, then a deterministic path, then contract-level policy checks.</p>
+  </div>
+</section>
+<section class="section alt">
+  <div class="container">
+    <div class="sec-head rv"><span class="eyebrow">Threat model</span><h2 style="margin-top:12px">Four protections, enforced on-chain.</h2></div>
+    <div class="grid g4 rv d1">
+      <div class="card"><div class="label acc">01</div><h3 style="margin:12px 0 8px;font-size:16px">Per-trade size limits</h3><p class="small muted">Max notional on any single swap.</p></div>
+      <div class="card"><div class="label acc">02</div><h3 style="margin:12px 0 8px;font-size:16px">Daily loss limits</h3><p class="small muted">Cumulative realized-loss ceiling per 24h.</p></div>
+      <div class="card"><div class="label acc">03</div><h3 style="margin:12px 0 8px;font-size:16px">Agent-service caps</h3><p class="small muted">Total fees payable per day.</p></div>
+      <div class="card"><div class="label acc">04</div><h3 style="margin:12px 0 8px;font-size:16px">Approved payees &amp; pools</h3><p class="small muted">Only vetted recipients and markets.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container split">
+    <div class="rv"><span class="eyebrow">Replay &amp; verification</span><h2 style="margin-top:12px">Defense in depth.</h2>
+      <div class="flist mt">
+        <div class="frow" style="display:flex;gap:16px;padding:18px 0;border-top:1px solid var(--border)"><span class="label acc" style="width:70px">Keys</span><div><h3 style="font-size:15px">Bounded session keys</h3><p class="small muted">Agents never hold user keys. The Strategist acts via a scoped, revocable session key.</p></div></div>
+        <div class="frow" style="display:flex;gap:16px;padding:18px 0;border-top:1px solid var(--border)"><span class="label acc" style="width:70px">Replay</span><div><h3 style="font-size:15px">Unique nonce + expiry</h3><p class="small muted">Every HSP mandate carries a sequential nonce and timestamp expiry — replays revert.</p></div></div>
+        <div class="frow" style="display:flex;gap:16px;padding:18px 0;border-top:1px solid var(--border)"><span class="label acc" style="width:70px">PnL</span><div><h3 style="font-size:15px">High-water-mark escrow</h3><p class="small muted">Performance fees release only above the attested prior peak.</p></div></div>
+      </div>
+    </div>
+    <div class="rv d1">
+      <div class="panel"><div class="panel-head"><h3>PolicyVault · request check</h3><span class="badge demo"><span class="dot"></span>Demo</span></div>
+        <div style="padding:14px 18px"><div class="feed" id="chk"></div>
+        <div class="row between mt" style="border-top:1px solid var(--border);padding-top:14px"><span class="label">Owner controls</span><span class="badge ok"><span class="dot"></span>Pausable · withdrawable</span></div></div></div>
+    </div>
+  </div>
+</section>
+<div id="site-footer"></div>
+<script src="assets/site.js"></script>
+<script>
+(function(){ var M=window.MERIDIAN;
+  M.renderFeed(document.getElementById("chk"), [
+    {k:"ok",ic:"check",t:"Requested BUY 420 USDT of HSK",m:["Strategist"],time:""},
+    {k:"ok",ic:"check",t:"Per-trade cap · 420 ≤ 500",m:["PASS"],time:""},
+    {k:"ok",ic:"check",t:"Daily loss budget available",m:["PASS"],time:""},
+    {k:"ok",ic:"check",t:"Pool &amp; token allowlisted",m:["PASS"],time:""},
+    {k:"acc",ic:"zap",t:"Deterministic execution → HSKSwap",m:["owner-pausable"],time:""}
+  ]);
+})();
+</script>
+</body>
+</html>

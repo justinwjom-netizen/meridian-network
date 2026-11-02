@@ -1,0 +1,21 @@
+{
+  "common": {
+    "getStarted": "Commencer",
+    "signIn": "Se connecter",
+    "startFreeTrial": "Essai gratuit",
+    "trialCaption": "Essai de 2 semaines sans engagement",
+    "whitepaper": "Livre blanc"
+  },
+  "nav": {
+    "token": "Jeton",
+    "aiTrading": "Trading par IA",
+    "technology": "Technologie",
+    "company": "Entreprise"
+  },
+  "cookie": {
+    "title": "Nous respectons votre vie privée",
+    "acceptAll": "Tout accepter",
+    "declineAll": "Tout refuser",
+    "save": "Enregistrer les préférences"
+  }
+}

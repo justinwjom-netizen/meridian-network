@@ -1,0 +1,21 @@
+{
+  "common": {
+    "getStarted": "Loslegen",
+    "signIn": "Anmelden",
+    "startFreeTrial": "Kostenlos testen",
+    "trialCaption": "2 Wochen unverbindlich testen",
+    "whitepaper": "Whitepaper"
+  },
+  "nav": {
+    "token": "Token",
+    "aiTrading": "KI-Trading",
+    "technology": "Technologie",
+    "company": "Unternehmen"
+  },
+  "cookie": {
+    "title": "Ihre Privatsphäre ist uns wichtig",
+    "acceptAll": "Alle akzeptieren",
+    "declineAll": "Alle ablehnen",
+    "save": "Einstellungen speichern"
+  }
+}

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>How It Works · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="public" data-page="how">
+<div id="site-nav"></div>
+<section class="section">
+  <div class="container maxw-md">
+    <span class="eyebrow rv">How it works</span>
+    <h1 class="rv d1" style="margin-top:16px">From a plain-English instruction to a settled, attested trade.</h1>
+    <p class="lead rv d2" style="margin-top:16px">Intelligence, risk evaluation, payment authorization, trade execution and performance verification form one continuous system — not isolated products.</p>
+  </div>
+</section>
+<section class="section alt">
+  <div class="container">
+    <div class="sec-head rv"><span class="eyebrow">Architecture</span><h2 style="margin-top:12px">The full stack.</h2></div>
+    <div class="flow rv d1" id="flow">
+      <div class="fstep active" data-step="0"><div class="fn">01</div><div class="ft">User Policy</div><div class="fd">Plain-English limits</div></div>
+      <div class="fstep" data-step="1"><div class="fn">02</div><div class="ft">Strategist</div><div class="fd">Coordinates</div></div>
+      <div class="fstep" data-step="2"><div class="fn">03</div><div class="ft">Signal + Risk</div><div class="fd">Buys intelligence</div></div>
+      <div class="fstep" data-step="3"><div class="fn">04</div><div class="ft">HSP Mandate</div><div class="fd">Authorizes pay</div></div>
+      <div class="fstep" data-step="4"><div class="fn">05</div><div class="ft">HSK Settlement</div><div class="fd">On-chain</div></div>
+      <div class="fstep" data-step="5"><div class="fn">06</div><div class="ft">HSKSwap</div><div class="fd">Execution</div></div>
+      <div class="fstep" data-step="6"><div class="fn">07</div><div class="ft">Auditor</div><div class="fd">Attestation</div></div>
+    </div>
+    <div class="flow-detail rv d1" id="fd"></div>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="grid g3">
+      <div class="card pad-lg rv"><div class="label acc">Track 1</div><h3 style="margin:12px 0">AI Agent Trading</h3><p class="t2 small">The Strategist monitors markets, buys signals, clears risk, and executes on HSKSwap within on-chain policy.</p></div>
+      <div class="card pad-lg rv d1"><div class="label acc">Track 2</div><h3 style="margin:12px 0">Agent Payments (HSP)</h3><p class="t2 small">Specialist services are paid per call with HSP mandates — replay-protected and settled on HSK Chain.</p></div>
+      <div class="card pad-lg rv d2"><div class="label acc">Verification</div><h3 style="margin:12px 0">Attested Performance</h3><p class="t2 small">The Auditor replays settled trades and signs epoch PnL, backing verifiable reporting.</p></div>
+    </div>
+    <div class="btnrow rv" style="margin-top:32px"><a class="btn btn-accent" href="app.html">Launch Terminal <span class="arrow"></span></a><a class="btn btn-ghost" href="security.html">Security model</a></div>
+  </div>
+</section>
+<div id="site-footer"></div>
+<script src="assets/site.js"></script>
+<script>
+(function(){
+  var FLOW=[["User Policy","You define limits in plain English.","Natural-language instruction","Validated PolicyConfig","Schema validation before storage."],
+  ["Strategist","Your agent coordinates the strategy.","Market state + policy","A proposed trade + intelligence need","Bounded session key — never your keys."],
+  ["Signal + Risk","Specialist agents provide intelligence.","Pair, size, conditions","Signal + risk verdict","Results released only after payment."],
+  ["HSP Mandate","A mandate authorizes payment.","Payee, amount, nonce, expiry","A signed mandate within budget","Unique nonce + expiry prevent replay."],
+  ["HSK Settlement","The payment settles on-chain.","Signed mandate","Settlement receipt","Payee allowlist enforced."],
+  ["HSKSwap Execution","The approved trade executes.","Route + slippage cap","Swap receipt","Per-trade cap re-checked on-chain."],
+  ["Auditor Attestation","The result is verified and signed.","Settled records","Signed epoch PnL","Fees escrow above high-water mark."]];
+  var fd=document.getElementById("fd"), flow=document.getElementById("flow");
+  function show(i){ var s=FLOW[i]; fd.innerHTML="<div class='row between'><h3>"+s[0]+"</h3><span class='label'>Stage "+(i+1)+"</span></div><p class='t2' style='margin:10px 0 16px'>"+s[1]+"</p><div class='grid g3' style='gap:12px'><div class='card flat'><div class='label'>Input</div><p class='small t2' style='margin-top:6px'>"+s[2]+"</p></div><div class='card flat'><div class='label'>Output</div><p class='small t2' style='margin-top:6px'>"+s[3]+"</p></div><div class='card flat'><div class='label acc'>Security</div><p class='small t2' style='margin-top:6px'>"+s[4]+"</p></div></div>"; }
+  show(0); flow.querySelectorAll(".fstep").forEach(function(st){ st.onclick=function(){ flow.querySelectorAll(".fstep").forEach(function(x){x.classList.remove("active");}); st.classList.add("active"); show(+st.getAttribute("data-step")); }; });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Payment Mandates · Meridian</title>
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body data-shell="app" data-page="mandates">
+<div id="shell"></div>
+<div id="app-content" style="display:none">
+  <div class="page-head"><h1>Payment Mandates</h1><p class="lead">HSP agent-to-agent payment authorization and settlement, on HSK Chain.</p></div>
+  <div class="metrics m5 mb" style="grid-template-columns:repeat(5,1fr)">
+    <div class="metric"><div class="k">Total Mandates</div><div class="v">128</div><div class="sub">all-time · demo</div></div>
+    <div class="metric"><div class="k">Pending</div><div class="v" style="color:var(--warn)">1</div><div class="sub">awaiting settle</div></div>
+    <div class="metric"><div class="k">Settled</div><div class="v pos">124</div><div class="sub">confirmed</div></div>
+    <div class="metric"><div class="k">Rejected</div><div class="v neg">3</div><div class="sub">policy/expiry</div></div>
+    <div class="metric"><div class="k">Total Spend</div><div class="v">3.42</div><div class="sub">USDT today</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Mandate Ledger</h3><div class="row gap-sm"><div class="tabs" data-tabs><button class="on" data-tab="all">All</button><button data-tab="Settled">Settled</button><button data-tab="Pending">Pending</button><button data-tab="Rejected">Rejected</button></div><button class="btn btn-ghost btn-sm" id="faucet">Get test USDT</button><button class="btn btn-accent btn-sm" id="newMandate">+ New mandate · on-chain</button></div></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Mandate</th><th>Payee</th><th>Purpose</th><th class="num">Amount</th><th>Expiry</th><th>Status</th><th>Tx</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+</div>
+<script src="assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="assets/web3.js"></script>
+<script>
+(function(){
+  var M=window.MERIDIAN, data=M.mandates, curF="all";
+  function render(f){ curF=f||curF; var list=curF&&curF!=="all"?data.filter(function(m){return m.status===curF;}):data;
+    document.getElementById("rows").innerHTML=list.map(function(m){
+      var tx = m.txUrl ? "<a class='addr acc' href='"+m.txUrl+"' target='_blank' rel='noopener'>"+m.tx+" ↗</a>" : "<span class='addr'>"+m.tx+"</span>";
+      return "<tr><td class='addr'>"+m.id+"</td><td>"+m.payee+"</td><td class='t2'>"+m.purpose+"</td><td class='num'>"+m.amount+" "+m.token+"</td><td class='t2 small'>"+m.expiry+"</td><td>"+M.stBadge(m.status)+"</td><td>"+tx+"</td><td><a class='rowbtn small' href='app-mandate.html?id="+m.id+"'>Inspect →</a></td></tr>";
+    }).join(""); }
+  render("all");
+  M.getMandates().then(function(l){ data=l; render(); });
+  document.querySelectorAll("[data-tabs] button").forEach(function(b){ b.addEventListener("click",function(){ render(b.getAttribute("data-tab")); }); });
+
+  // REAL on-chain mandate: pay an agent payee in USDT from the connected wallet,
+  // then prepend the settled mandate (with its real tx) to the ledger.
+  document.getElementById("faucet").addEventListener("click", function(){
+    var b=this; if(!window.MWEB3){ toast("On-chain layer not loaded — reload","err"); return; }
+    if(window.MERIDIAN_wallet && !MERIDIAN_wallet.getAccount()){ MERIDIAN_wallet.open(); return; }
+    var old=b.textContent; b.disabled=true; b.textContent="Minting…";
+    MWEB3.mintTestUsdt(100).then(function(){ b.disabled=false; b.textContent=old; toast("Minted 100 test USDT","ok"); })
+      .catch(function(err){ b.disabled=false; b.textContent=old; toast((err&&(err.shortMessage||err.message))||"Mint failed","err"); });
+  });
+
+  var btn=document.getElementById("newMandate");
+  btn.addEventListener("click", function(){
+    if(!window.MWEB3){ toast("On-chain layer not loaded — reload the page","err"); return; }
+    if(window.MERIDIAN_wallet && !MERIDIAN_wallet.getAccount()){ MERIDIAN_wallet.open(); return; }
+    var amt=0.05, payee=MWEB3.payeeFor(0), old=btn.textContent;
+    btn.disabled=true; btn.textContent="Confirm in wallet…";
+    MWEB3.payAgent({ payee:payee, amountUsdt:amt }).then(function(hash){
+      btn.disabled=false; btn.textContent=old;
+      var shortTx=hash.slice(0,10)+"…"+hash.slice(-6);
+      var shortPayee=payee.slice(0,6)+"…"+payee.slice(-4);
+      data.unshift({ id:"MND-"+hash.slice(2,8), payee:shortPayee, purpose:"signal.request", amount:amt.toFixed(2), token:"USDT",
+        expiry:"settled", status:"Settled", tx:shortTx, txUrl:MWEB3.explorerTx(hash) });
+      render();
+      toast("Mandate settled on-chain · "+amt+" USDT","ok");
+    }).catch(function(err){
+      btn.disabled=false; btn.textContent=old;
+      toast((err&&(err.shortMessage||err.reason||err.message))||"Mandate failed","err");
+    });
+  });
+})();
+</script>
+</body>
+</html>

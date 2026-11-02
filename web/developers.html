@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Developers · Meridian</title><link rel="stylesheet" href="assets/site.css" /></head>
+<body data-shell="public" data-page="developers">
+<div id="site-nav"></div>
+<section class="section">
+  <div class="container maxw-md">
+    <span class="eyebrow rv">Developer portal</span>
+    <h1 class="rv d1" style="margin-top:16px">Integrate payments and trading over MCP.</h1>
+    <p class="lead rv d2" style="margin-top:16px">Two native Model Context Protocol servers. Tool names below come from the project specification — validate against the implementation and HSP documentation before claiming live calls.</p>
+    <div class="btnrow rv d2" style="margin-top:22px"><a class="btn btn-accent" href="docs.html">Read the Docs <span class="arrow"></span></a><a class="btn btn-ghost" href="#mcp">MCP reference</a></div>
+  </div>
+</section>
+<section class="section alt" id="mcp">
+  <div class="container">
+    <div class="grid g2">
+      <div class="panel rv"><div class="panel-head"><h3>meridian-pay-mcp</h3><span class="badge muted">Payments</span></div>
+        <div style="padding:8px 0">
+          <div class="toolrow">create_payment_conditions<span>Generate signed merchant conditions</span></div>
+          <div class="toolrow">build_mandate<span>Construct a mandate within policy</span></div>
+          <div class="toolrow">submit_mandate<span>Settle on HSK Chain</span></div>
+          <div class="toolrow">verify_settlement<span>Check receipt &amp; status</span></div>
+          <div class="toolrow" style="border-bottom:none">list_payments<span>Inspect the spend ledger</span></div>
+        </div>
+      </div>
+      <div class="panel rv d1"><div class="panel-head"><h3>meridian-trade-mcp</h3><span class="badge muted">Trading</span></div>
+        <div style="padding:8px 0">
+          <div class="toolrow">set_policy<span>Compile NL into PolicyVault limits</span></div>
+          <div class="toolrow">get_quote<span>Pool prices &amp; reserve depth</span></div>
+          <div class="toolrow">propose_trade<span>Validate bounds before execution</span></div>
+          <div class="toolrow">get_positions / get_pnl<span>Balances &amp; verified PnL</span></div>
+          <div class="toolrow" style="border-bottom:none">list_agents<span>Browse the marketplace</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="code rv d1" style="margin-top:20px">
+      <div class="code-head"><span>typescript · trading workflow</span><button class="copybtn">Copy</button></div>
+<pre><span class="k">import</span> { TradeClient } <span class="k">from</span> <span class="s">"@meridian/sdk"</span>;
+
+<span class="c">// compile plain-English policy into on-chain limits</span>
+<span class="k">await</span> trade.<span class="f">set_policy</span>({ perTradeCap: <span class="s">"500"</span>, dailyLoss: <span class="s">"100"</span>, agentBudget: <span class="s">"20"</span> });
+
+<span class="k">const</span> quote = <span class="k">await</span> trade.<span class="f">get_quote</span>(<span class="s">"HSK/USDT"</span>);
+<span class="k">const</span> proposal = <span class="k">await</span> trade.<span class="f">propose_trade</span>({ pair: <span class="s">"HSK/USDT"</span>, size: <span class="s">"420"</span> });
+<span class="c">// proposal.valid === true only if within PolicyVault bounds</span></pre>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container"><div class="grid g3">
+    <div class="card pad-lg rv"><h3 style="font-size:15px">Getting started</h3><p class="small muted mt-s">Run the backend, open the terminal, connect a wallet to HSK Chain.</p></div>
+    <div class="card pad-lg rv d1"><h3 style="font-size:15px">Error handling</h3><p class="small muted mt-s">Rejected signatures, reverts, stale data and unavailable services surface as explicit states.</p></div>
+    <div class="card pad-lg rv d2"><h3 style="font-size:15px">Integration status</h3><p class="small muted mt-s"><span class="badge demo"><span class="dot"></span>Demo</span> Live wiring requires verified config — no invented endpoints.</p></div>
+  </div></div>
+</section>
+<div id="site-footer"></div>
+<style>.toolrow{ display:flex; justify-content:space-between; gap:16px; padding:11px 18px; border-bottom:1px solid var(--border-2); font-family:var(--mono); font-size:13px; } .toolrow span{ font-family:var(--sans); font-size:12.5px; color:var(--muted); text-align:right; }</style>
+<script src="assets/site.js"></script>
+</body>
+</html>

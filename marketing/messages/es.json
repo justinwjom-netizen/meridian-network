@@ -1,0 +1,21 @@
+{
+  "common": {
+    "getStarted": "Empezar",
+    "signIn": "Iniciar sesión",
+    "startFreeTrial": "Prueba gratuita",
+    "trialCaption": "Prueba de 2 semanas sin compromiso",
+    "whitepaper": "Whitepaper"
+  },
+  "nav": {
+    "token": "Token",
+    "aiTrading": "Trading con IA",
+    "technology": "Tecnología",
+    "company": "Empresa"
+  },
+  "cookie": {
+    "title": "Valoramos tu privacidad",
+    "acceptAll": "Aceptar todo",
+    "declineAll": "Rechazar todo",
+    "save": "Guardar preferencias"
+  }
+}

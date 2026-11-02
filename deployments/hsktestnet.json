@@ -1,0 +1,33 @@
+{
+  "network": "hsktestnet",
+  "chainId": 133,
+  "deployer": "0xF890a7820ad7431E093673Ea7aD6016303b3c13a",
+  "deployedAt": "2026-10-30T06:19:04.235Z",
+  "contracts": {
+    "PolicyVault": "0xbF3f9756a67E99213cEaa236447F2b7f6EA4Ea47",
+    "MandateRegistry": "0xFCaB43BCE57D977880e4a7d87747999829398A7f",
+    "PnLAttestation": "0x237EaE2c99CdF59263AaF6713da3A1dd2E8F89c7",
+    "ReputationRegistry": "0x22f84214Df4101F1FDD7C8AAF28995dAab6EE31a"
+  },
+  "config": {
+    "perTradeCap": "500000000",
+    "dailyLossLimit": "100000000",
+    "dailyAgentCap": "20000000",
+    "maxSlippageBps": "100",
+    "auditor": "0xA8cc888227CA584C3c088892379c09690e9795Ea",
+    "tokens": [],
+    "pools": [],
+    "payees": [
+      "0x8115BCE56216b9eB17DDC4727887240acE5C5ed7",
+      "0x545c1a3A5344DdA40532cA1bd72A2967D509961d",
+      "0xb366C007c7159b3ED6680F9Ddc6Ea46e73b24587",
+      "0xA8cc888227CA584C3c088892379c09690e9795Ea"
+    ]
+  },
+  "tokens": {
+    "USDT_ADDRESS": "0x25863c441CBE46819946Ee58Cebf04F666280381",
+    "HSK_ADDRESS": "0x30C9384706d0D34003a143d98ccaC94434ab792f",
+    "WETH_ADDRESS": "0xa363695B2f767c6C7ec03Bf7ea3F228d613CF95e",
+    "HSKSWAP_ROUTER": "0xDf5589911aA39A7eA7fc659d818453EcB3be3bF5"
+  }
+}
